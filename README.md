@@ -23,6 +23,7 @@ The goal of this project is to build a centralized incident management portal th
 - 🐳 Containerize the application
 - 🔄 Implement CI/CD
 - ☁️ Deploy the application on AWS
+- AWS
 
 ---
 
