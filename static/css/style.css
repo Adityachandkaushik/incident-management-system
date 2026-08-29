@@ -1,0 +1,59 @@
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+.navbar {
+    min-height: 70px;
+}
+
+.navbar-brand {
+    color: var(--text);
+    font-size: 20px;
+}
+
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12) !important;
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: 18px;
+}
+
+.stat-card h2 {
+    font-size: 30px;
+}
+
+.action-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12) !important;
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #f1f5f9;
+
+    font-size: 23px;
+}
+
+.action-card h5 {
+    color: var(--text);
+}

@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session
+from flask import Flask, redirect, url_for, session, render_template
 from pathlib import Path
 
 from .models import init_db
@@ -8,30 +8,53 @@ from .incidents import incidents_bp
 
 def create_app():
 
-    # Project root directory
+    # =====================================================
+    # PROJECT DIRECTORIES
+    # =====================================================
+
     base_dir = Path(__file__).resolve().parent.parent
 
     template_dir = base_dir / "templates"
     static_dir = base_dir / "static"
 
-    # Create Flask application
+
+    # =====================================================
+    # CREATE FLASK APPLICATION
+    # =====================================================
+
     app = Flask(
         __name__,
         template_folder=str(template_dir),
         static_folder=str(static_dir)
     )
 
-    # Application configuration
+
+    # =====================================================
+    # APPLICATION CONFIGURATION
+    # =====================================================
+
     app.config["SECRET_KEY"] = "dev-secret-key"
 
-    # Initialize database
+
+    # =====================================================
+    # INITIALIZE DATABASE
+    # =====================================================
+
     init_db()
 
-    # Register blueprints
+
+    # =====================================================
+    # REGISTER BLUEPRINTS
+    # =====================================================
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(incidents_bp)
 
-    # Home route
+
+    # =====================================================
+    # HOME
+    # =====================================================
+
     @app.route("/")
     def home():
 
@@ -40,37 +63,96 @@ def create_app():
 
         return redirect(url_for("dashboard"))
 
-    # Dashboard route
+
+    # =====================================================
+    # DASHBOARD
+    # =====================================================
+
     @app.route("/dashboard")
     def dashboard():
 
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
 
-        return f"""
-        <h1>Incident Management Dashboard</h1>
+        conn = None
 
-        <p>Welcome, {session["user_name"]}</p>
+        try:
 
-        <p>Role: {session["user_role"]}</p>
+            from .models import get_db_connection
 
-        <hr>
+            conn = get_db_connection()
 
-        <a href="/incidents/create">
-            Create Incident
-        </a>
 
-        <br><br>
+            # Total incidents
 
-        <a href="/incidents/">
-            View Incidents
-        </a>
+            total_incidents = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM incidents
+                """
+            ).fetchone()[0]
 
-        <br><br>
 
-        <a href="/logout">
-            Logout
-        </a>
-        """
+            # Open incidents
+
+            open_incidents = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM incidents
+                WHERE status = 'Open'
+                """
+            ).fetchone()[0]
+
+
+            # In Progress incidents
+
+            progress_incidents = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM incidents
+                WHERE status = 'In Progress'
+                """
+            ).fetchone()[0]
+
+
+            # Resolved incidents
+
+            resolved_incidents = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM incidents
+                WHERE status = 'Resolved'
+                """
+            ).fetchone()[0]
+
+
+        except Exception as e:
+
+            print("Dashboard error:", e)
+
+            total_incidents = 0
+            open_incidents = 0
+            progress_incidents = 0
+            resolved_incidents = 0
+
+
+        finally:
+
+            if conn:
+                conn.close()
+
+
+        return render_template(
+            "dashboard.html",
+
+            total_incidents=total_incidents,
+
+            open_incidents=open_incidents,
+
+            progress_incidents=progress_incidents,
+
+            resolved_incidents=resolved_incidents
+        )
+
 
     return app
