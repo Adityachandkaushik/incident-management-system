@@ -20,7 +20,7 @@ static_dir = base_dir / "static"
 
 
 # =====================================================
-# CREATE FLASK APPLICATION
+# CREATE FLASK APPLICATION USED FOR BETTER INTERACTION WITH BLUEPRINTS
 # =====================================================
 
 app = Flask(
