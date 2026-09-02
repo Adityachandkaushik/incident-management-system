@@ -1,272 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}Create Incident{% endblock %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<div class="row justify-content-center">
 
-    <title>Incidents | Incident Management System</title>
+    <div class="col-md-8">
 
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        <div class="card shadow">
 
-    <!-- Custom CSS -->
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+            <div class="card-body">
 
-</head>
+                <h3 class="mb-4">
+                    Create New Incident
+                </h3>
 
-<body>
+                <form method="POST">
 
-<div class="container py-5">
+                    <div class="mb-3">
 
-    <!-- Header -->
+                        <label class="form-label">
+                            Incident Title
+                        </label>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <input
+                            type="text"
+                            name="title"
+                            class="form-control"
+                            placeholder="Example: Production server down"
+                            required
+                        >
 
-        <div>
+                    </div>
 
-            <h2 class="fw-bold mb-1">
-                🚨 Incidents
-            </h2>
 
-            <p class="text-muted mb-0">
-                Monitor and manage reported incidents
-            </p>
+                    <div class="mb-3">
 
-        </div>
+                        <label class="form-label">
+                            Description
+                        </label>
 
-        <div class="d-flex gap-2">
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="5"
+                            placeholder="Describe the incident..."
+                            required></textarea>
 
-            <a
-                href="/dashboard"
-                class="btn btn-outline-secondary"
-            >
-                Dashboard
-            </a>
+                    </div>
 
-            <a
-                href="/incidents/create"
-                class="btn btn-primary"
-            >
-                + Create Incident
-            </a>
 
-        </div>
+                    <div class="mb-3">
 
-    </div>
+                        <label class="form-label">
+                            Priority
+                        </label>
 
+                        <select
+                            name="priority"
+                            class="form-select">
 
-    {% if incidents %}
+                            <option value="Low">
+                                Low
+                            </option>
 
-    <!-- Incident Table -->
+                            <option value="Medium" selected>
+                                Medium
+                            </option>
 
-    <div class="card">
+                            <option value="High">
+                                High
+                            </option>
 
-        <div class="table-responsive">
+                            <option value="Critical">
+                                Critical
+                            </option>
 
-            <table class="table table-hover align-middle mb-0">
+                        </select>
 
-                <thead class="table-dark">
+                    </div>
 
-                    <tr>
 
-                        <th>ID</th>
-                        <th>Title</th>
-                        <th>Priority</th>
-                        <th>Severity</th>
-                        <th>Status</th>
-                        <th>Created By</th>
-                        <th>Action</th>
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+                        Create Incident
+                    </button>
 
-                    </tr>
+                    <a
+                        href="{{ url_for('incidents.dashboard') }}"
+                        class="btn btn-secondary">
+                        Cancel
+                    </a>
 
-                </thead>
+                </form>
 
-                <tbody>
-
-                    {% for incident in incidents %}
-
-                    <tr>
-
-                        <!-- ID -->
-
-                        <td class="fw-semibold">
-
-                            INC-{{ "%04d"|format(incident["id"]) }}
-
-                        </td>
-
-
-                        <!-- Title -->
-
-                        <td>
-
-                            <div class="fw-semibold">
-                                {{ incident["title"] }}
-                            </div>
-
-                            <small class="text-muted">
-                                {{ incident["created_at"] }}
-                            </small>
-
-                        </td>
-
-
-                        <!-- Priority -->
-
-                        <td>
-
-                            <span
-                                class="priority-{{ incident['priority']|lower }}"
-                            >
-                                {{ incident["priority"] }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- Severity -->
-
-                        <td>
-
-                            {{ incident["severity"] }}
-
-                        </td>
-
-
-                        <!-- Status -->
-
-                        <td>
-
-                            {% if incident["status"] == "Open" %}
-
-                                <span class="status-badge status-open">
-                                    Open
-                                </span>
-
-                            {% elif incident["status"] == "Assigned" %}
-
-                                <span class="status-badge status-assigned">
-                                    Assigned
-                                </span>
-
-                            {% elif incident["status"] == "In Progress" %}
-
-                                <span class="status-badge status-progress">
-                                    In Progress
-                                </span>
-
-                            {% elif incident["status"] == "Resolved" %}
-
-                                <span class="status-badge status-resolved">
-                                    Resolved
-                                </span>
-
-                            {% elif incident["status"] == "Closed" %}
-
-                                <span class="status-badge status-closed">
-                                    Closed
-                                </span>
-
-                            {% else %}
-
-                                <span class="status-badge">
-                                    {{ incident["status"] }}
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <!-- Creator -->
-
-                        <td>
-
-                            {{ incident["creator_name"] }}
-
-                        </td>
-
-
-                        <!-- Action -->
-
-                        <td>
-
-                            <a
-                                href="/incidents/{{ incident['id'] }}"
-                                class="btn btn-sm btn-outline-primary"
-                            >
-                                View
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    {% else %}
-
-    <!-- Empty State -->
-
-    <div class="card">
-
-        <div class="card-body text-center py-5">
-
-            <div style="font-size: 50px;">
-                🚨
             </div>
 
-            <h4 class="fw-bold mt-3">
-                No Incidents Found
-            </h4>
-
-            <p class="text-muted">
-                There are currently no incidents in the system.
-            </p>
-
-            <a
-                href="/incidents/create"
-                class="btn btn-primary"
-            >
-                Create Your First Incident
-            </a>
-
         </div>
 
     </div>
-
-    {% endif %}
 
 </div>
 
-
-<!-- Bootstrap JS -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
-
-</body>
-
-</html>
+{% endblock %}
