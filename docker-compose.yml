@@ -1,0 +1,15 @@
+services:
+
+  incident-management:
+    build: .
+    container_name: incident-management
+    ports:
+      - "5000:5000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./database:/app/database
+
+    restart: unless-stopped
