@@ -1,45 +1,78 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Login{% endblock %}
 
-    <h1>Incident Management System</h1>
+{% block content %}
 
-    <h2>Login</h2>
+<div class="row justify-content-center">
 
-    <form method="POST">
+    <div class="col-md-5">
 
-        <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-        >
+        <div class="card shadow">
 
-        <br><br>
+            <div class="card-body">
 
-        <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-        >
+                <h3 class="text-center mb-4">
+                    Login
+                </h3>
 
-        <br><br>
+                <form method="POST">
 
-        <button type="submit">
-            Login
-        </button>
+                    <div class="mb-3">
 
-    </form>
+                        <label class="form-label">
+                            Username
+                        </label>
 
-    <p>
-        Don't have an account?
-        <a href="/register">Create Account</a>
-    </p>
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control"
+                            required
+                        >
 
-</body>
-</html>
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100">
+                        Login
+                    </button>
+
+                </form>
+
+
+                <div class="text-center mt-3">
+
+                    <a href="{{ url_for('auth.register') }}">
+                        Create account
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
