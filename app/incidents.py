@@ -1,282 +1,272 @@
-from flask import Blueprint, request, redirect, url_for, session, render_template
-from .models import get_db_connection
+from datetime import datetime
 
-
-incidents_bp = Blueprint(
-    "incidents",
-    __name__,
-    url_prefix="/incidents"
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash
 )
 
+from .models import get_db
+from .notifications import send_email
 
-# =========================================================
-# CREATE INCIDENT
-# =========================================================
 
-@incidents_bp.route("/create", methods=["GET", "POST"])
-def create_incident():
+incidents_bp = Blueprint("incidents", __name__)
 
-    # User must be logged in
-    if "user_id" not in session:
+
+def login_required():
+    return "user_id" in session
+
+
+@incidents_bp.route("/")
+def home():
+
+    if "user_id" in session:
+        return redirect(url_for("incidents.dashboard"))
+
+    return redirect(url_for("auth.login"))
+
+
+@incidents_bp.route("/dashboard")
+def dashboard():
+
+    if not login_required():
         return redirect(url_for("auth.login"))
 
-    # GET request → show form
-    if request.method == "GET":
-        return render_template("create_incident.html")
+    conn = get_db()
 
-    # POST request → create incident
-    title = request.form.get("title", "").strip()
-    description = request.form.get("description", "").strip()
-    priority = request.form.get("priority", "Medium")
-    severity = request.form.get("severity", "Medium")
+    incidents = conn.execute("""
+        SELECT
+            incidents.*,
+            creator.username AS creator_name,
+            assignee.username AS assignee_name
+        FROM incidents
+        LEFT JOIN users creator
+            ON incidents.created_by = creator.id
+        LEFT JOIN users assignee
+            ON incidents.assigned_to = assignee.id
+        ORDER BY incidents.id DESC
+    """).fetchall()
 
-    # Validation
-    if not title:
-        return "Incident title is required.", 400
+    users = conn.execute(
+        "SELECT id, username FROM users"
+    ).fetchall()
 
-    if not description:
-        return "Incident description is required.", 400
+    conn.close()
 
-    allowed_priorities = [
-        "Low",
-        "Medium",
-        "High",
-        "Critical"
-    ]
+    return render_template(
+        "dashboard.html",
+        incidents=incidents,
+        users=users
+    )
 
-    allowed_severities = [
-        "Low",
-        "Medium",
-        "High",
-        "Critical"
-    ]
 
-    if priority not in allowed_priorities:
-        return "Invalid priority.", 400
+@incidents_bp.route("/incident/create", methods=["GET", "POST"])
+def create_incident():
 
-    if severity not in allowed_severities:
-        return "Invalid severity.", 400
+    if not login_required():
+        return redirect(url_for("auth.login"))
 
-    # Database connection
-    conn = get_db_connection()
+    if request.method == "POST":
 
-    try:
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        priority = request.form.get("priority", "Medium")
 
-        conn.execute(
+        if not title or not description:
+            flash(
+                "Title and description are required.",
+                "danger"
+            )
+            return redirect(
+                url_for("incidents.create_incident")
+            )
+
+        conn = get_db()
+
+        cursor = conn.execute(
             """
             INSERT INTO incidents
-            (
-                title,
-                description,
-                priority,
-                severity,
-                status,
-                created_by
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
+            (title, description, priority, status, created_by)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 title,
                 description,
                 priority,
-                severity,
                 "Open",
                 session["user_id"]
             )
         )
 
+        incident_id = cursor.lastrowid
+
         conn.commit()
-
-        print("✅ Incident created successfully")
-
-    except Exception as e:
-
-        conn.rollback()
-
-        print("❌ Error creating incident:", e)
-
-        return f"Database error: {e}", 500
-
-    finally:
-
         conn.close()
 
-    return redirect(url_for("incidents.list_incidents"))
-
-
-# =========================================================
-# LIST INCIDENTS
-# =========================================================
-
-@incidents_bp.route("/")
-def list_incidents():
-
-    # User must be logged in
-    if "user_id" not in session:
-        return redirect(url_for("auth.login"))
-
-    conn = get_db_connection()
-
-    try:
-
-        incidents = conn.execute(
-            """
-            SELECT
-                incidents.*,
-                users.name AS creator_name
-            FROM incidents
-            JOIN users
-                ON incidents.created_by = users.id
-            ORDER BY incidents.created_at DESC
-            """
-        ).fetchall()
-
-        # Debug output
-        print(
-            "📋 INCIDENTS:",
-            [dict(row) for row in incidents]
+        flash(
+            f"Incident #{incident_id} created successfully.",
+            "success"
         )
 
-    except Exception as e:
-
-        print("❌ Error fetching incidents:", e)
-
-        return f"Database error: {e}", 500
-
-    finally:
-
-        conn.close()
+        return redirect(
+            url_for("incidents.dashboard")
+        )
 
     return render_template(
-        "incidents.html",
-        incidents=incidents
+        "create_incident.html"
     )
 
 
-# =========================================================
-# INCIDENT DETAILS
-# =========================================================
-
-@incidents_bp.route("/<int:incident_id>")
+@incidents_bp.route("/incident/<int:incident_id>")
 def incident_detail(incident_id):
 
-    # User must be logged in
-    if "user_id" not in session:
+    if not login_required():
         return redirect(url_for("auth.login"))
 
-    conn = get_db_connection()
+    conn = get_db()
 
-    try:
+    incident = conn.execute("""
+        SELECT
+            incidents.*,
+            creator.username AS creator_name,
+            assignee.username AS assignee_name
+        FROM incidents
+        LEFT JOIN users creator
+            ON incidents.created_by = creator.id
+        LEFT JOIN users assignee
+            ON incidents.assigned_to = assignee.id
+        WHERE incidents.id = ?
+    """, (incident_id,)).fetchone()
 
-        incident = conn.execute(
-            """
-            SELECT
-                incidents.*,
+    # Get users for the assignment dropdown
+    users = conn.execute(
+        "SELECT id, username FROM users"
+    ).fetchall()
 
-                creator.name AS creator_name,
-                creator.email AS creator_email,
+    conn.close()
 
-                engineer.name AS engineer_name
+    if not incident:
+        flash(
+            "Incident not found.",
+            "danger"
+        )
 
-            FROM incidents
-
-            JOIN users AS creator
-                ON incidents.created_by = creator.id
-
-            LEFT JOIN users AS engineer
-                ON incidents.assigned_to = engineer.id
-
-            WHERE incidents.id = ?
-            """,
-            (incident_id,)
-        ).fetchone()
-
-    except Exception as e:
-
-        print("❌ Error fetching incident:", e)
-
-        return f"Database error: {e}", 500
-
-    finally:
-
-        conn.close()
-
-    # Incident doesn't exist
-    if incident is None:
-        return "Incident not found.", 404
+        return redirect(
+            url_for("incidents.dashboard")
+        )
 
     return render_template(
         "incident_detail.html",
-        incident=incident
+        incident=incident,
+        users=users
     )
 
 
-# =========================================================
-# UPDATE INCIDENT STATUS
-# =========================================================
-
 @incidents_bp.route(
-    "/<int:incident_id>/status",
+    "/incident/<int:incident_id>/assign",
     methods=["POST"]
 )
-def update_status(incident_id):
+def assign_incident(incident_id):
 
-    # User must be logged in
-    if "user_id" not in session:
+    if not login_required():
         return redirect(url_for("auth.login"))
 
-    status = request.form.get("status")
-
-    allowed_statuses = [
-        "Open",
-        "Assigned",
-        "In Progress",
-        "Resolved",
-        "Closed"
-    ]
-
-    if status not in allowed_statuses:
-        return "Invalid status.", 400
-
-    conn = get_db_connection()
-
-    try:
-
-        conn.execute(
-            """
-            UPDATE incidents
-            SET
-                status = ?,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-            """,
-            (
-                status,
-                incident_id
-            )
+    if session.get("role") != "admin":
+        flash(
+            "Only admin can assign incidents.",
+            "danger"
         )
 
-        conn.commit()
-
-        print(
-            f"✅ Incident {incident_id} status updated to {status}"
+        return redirect(
+            url_for("incidents.dashboard")
         )
 
-    except Exception as e:
+    assigned_to = request.form.get(
+        "assigned_to"
+    )
 
-        conn.rollback()
+    conn = get_db()
 
-        print("❌ Error updating status:", e)
+    user = conn.execute(
+        "SELECT username FROM users WHERE id = ?",
+        (assigned_to,)
+    ).fetchone()
 
-        return f"Database error: {e}", 500
-
-    finally:
-
+    if not user:
         conn.close()
 
-    return redirect(
-        url_for(
-            "incidents.incident_detail",
-            incident_id=incident_id
+        flash(
+            "Invalid user.",
+            "danger"
         )
+
+        return redirect(
+            url_for("incidents.dashboard")
+        )
+
+    conn.execute(
+        """
+        UPDATE incidents
+        SET assigned_to = ?,
+            status = 'Assigned'
+        WHERE id = ?
+        """,
+        (
+            assigned_to,
+            incident_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    flash(
+        f"Incident #{incident_id} assigned to "
+        f"{user['username']}.",
+        "success"
+    )
+
+    return redirect(
+        url_for("incidents.dashboard")
+    )
+
+
+@incidents_bp.route(
+    "/incident/<int:incident_id>/resolve",
+    methods=["POST"]
+)
+def resolve_incident(incident_id):
+
+    if not login_required():
+        return redirect(url_for("auth.login"))
+
+    conn = get_db()
+
+    conn.execute(
+        """
+        UPDATE incidents
+        SET status = 'Resolved',
+            resolved_at = ?
+        WHERE id = ?
+        """,
+        (
+            datetime.now().isoformat(),
+            incident_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    flash(
+        f"Incident #{incident_id} resolved.",
+        "success"
+    )
+
+    return redirect(
+        url_for("incidents.dashboard")
     )
