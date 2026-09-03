@@ -1,86 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Register - Incident Management{% endblock %}
+{% block title %}Register - Incident Control{% endblock %}
 
 {% block content %}
-
-<div class="row justify-content-center">
-
-    <div class="col-md-5">
-
-        <div class="card shadow">
-
-            <div class="card-body p-4">
-
-                <h3 class="text-center mb-4">
-                    Create Account
-                </h3>
-
-                <form method="POST">
-
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <div class="ops-box">
+            <div class="ops-header text-center">Register Operator</div>
+            <div class="ops-body">
+                <form action="{{ url_for('auth.register') }}" method="POST">
                     <div class="mb-3">
-
-                        <label for="username" class="form-label">
-                            Username
-                        </label>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            class="form-control"
-                            placeholder="Enter username"
-                            required
-                        >
-
+                        <label for="username" class="mono small text-secondary mb-1">Desired Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
                     </div>
-
-
-                    <div class="mb-3">
-
-                        <label for="password" class="form-label">
-                            Password
-                        </label>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="form-control"
-                            placeholder="Enter password"
-                            required
-                        >
-
+                    <div class="mb-4">
+                        <label for="password" class="mono small text-secondary mb-1">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100">
-                        Register
-                    </button>
-
+                    <button type="submit" class="btn-ops w-100 py-2">Create Operator Profile</button>
                 </form>
-
-
-                <div class="text-center mt-3">
-
-                    <span>
-                        Already have an account?
-                    </span>
-
-                    <a href="{{ url_for('auth.login') }}">
-                        Login
-                    </a>
-
+                <div class="text-center mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <span class="small text-secondary">Already registered? </span>
+                    <a href="{{ url_for('auth.login') }}" class="small text-decoration-none">Sign In</a>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 {% endblock %}
