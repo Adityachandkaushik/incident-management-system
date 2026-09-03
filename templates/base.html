@@ -1,78 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Incident Management System{% endblock %}</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <title>
-        {% block title %}Incident Management{% endblock %}
-    </title>
+    <style>
+        :root {
+            --app-bg: #f8fafc;
+            --surface-card: #ffffff;
+            --border-subtle: #e2e8f0;
+            --border-focus: #94a3b8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-heading: #1e293b;
+            --sidebar-nav: #0f172a;
+        }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--app-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.011em;
+            -webkit-font-smoothing: antialiased;
+        }
 
+        /* Navbar Styling */
+        .ops-navbar {
+            background-color: var(--sidebar-nav);
+            border-bottom: 1px solid #1e293b;
+            padding-top: 0.65rem;
+            padding-bottom: 0.65rem;
+        }
+
+        .ops-brand {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #f8fafc !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .ops-nav-link {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #94a3b8 !important;
+            padding: 0.4rem 0.75rem !important;
+            border-radius: 0.375rem;
+            transition: color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .ops-nav-link:hover, .ops-nav-link.active {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Common Containers & Cards */
+        .app-container {
+            flex: 1 0 auto;
+            padding-top: 1.75rem;
+            padding-bottom: 3rem;
+        }
+
+        .ops-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .ops-card-header {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-heading);
+        }
+
+        .ops-card-body {
+            padding: 1.25rem;
+        }
+
+        /* Stat Widgets */
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.625rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            line-height: 1.1;
+        }
+
+        .stat-icon-wrapper {
+            width: 42px;
+            height: 42px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* Status Badges */
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.25rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .badge-status-open {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-status-assigned {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-status-resolved {
+            background-color: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Priority Badges */
+        .badge-priority {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.55rem;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-priority-critical {
+            background-color: #450a0a;
+            color: #fecaca;
+        }
+
+        .badge-priority-high {
+            background-color: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #ffedd5;
+        }
+
+        .badge-priority-medium {
+            background-color: #f8fafc;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-priority-low {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* Tables */
+        .ops-table {
+            margin-bottom: 0;
+            vertical-align: middle;
+        }
+
+        .ops-table thead th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0.75rem 1rem;
+            white-space: nowrap;
+        }
+
+        .ops-table tbody td {
+            font-size: 0.875rem;
+            padding: 0.85rem 1rem;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .ops-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .code-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        /* Forms */
+        .form-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.35rem;
+        }
+
+        .form-control, .form-select {
+            font-size: 0.875rem;
+            border-color: var(--border-subtle);
+            padding: 0.55rem 0.75rem;
+            border-radius: 0.375rem;
+            color: var(--text-main);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+        }
+
+        /* Buttons */
+        .btn-ops-primary {
+            background-color: #0f172a;
+            border-color: #0f172a;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .btn-ops-primary:hover, .btn-ops-primary:focus {
+            background-color: #1e293b;
+            border-color: #1e293b;
+            color: #ffffff;
+        }
+
+        .btn-ops-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-subtle);
+            color: #334155;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+        }
+
+        .btn-ops-outline:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        .user-tag {
+            font-size: 0.8125rem;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+    </style>
 </head>
-
 <body>
 
-<nav class="navbar navbar-dark bg-dark">
-
-    <div class="container">
-
-        <a class="navbar-brand"
-           href="{{ url_for('incidents.dashboard') }}">
-            Incident Management
-        </a>
-
-        {% if session.get("user_id") %}
-
-            <div class="text-white">
-
-                {{ session.get("username") }}
-
-                <a
-                    href="{{ url_for('auth.logout') }}"
-                    class="btn btn-outline-light btn-sm ms-2">
-                    Logout
-                </a>
-
+    <!-- Main Navigation Bar -->
+    <nav class="navbar navbar-expand-lg ops-navbar sticky-top">
+        <div class="container-fluid px-lg-4">
+            <a class="ops-brand navbar-brand" href="{{ url_for('incidents.dashboard') if session.get('user_id') else '#' }}">
+                <i class="bi bi-shield-check text-primary"></i> OpsIncident
+            </a>
+            
+            <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#opsNavbarNav" aria-controls="opsNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list text-light"></i>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="opsNavbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    {% if session.get("user_id") %}
+                    <li class="nav-item">
+                        <a class="ops-nav-link nav-link" href="{{ url_for('incidents.dashboard') }}">
+                            <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    {% if session.get("user_id") %}
+                    <li class="nav-item me-lg-2">
+                        <span class="ops-nav-link nav-link text-white d-inline-flex align-items-center">
+                            <i class="bi bi-person-circle me-1 text-secondary"></i> 
+                            {{ session.get("username") }}
+                            {% if session.get("role") %}
+                            <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;">{{ session.get("role") }}</span>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-sm btn-outline-danger px-3 py-1" href="{{ url_for('auth.logout') }}">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="ops-nav-link nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="ops-nav-link nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
+        </div>
+    </nav>
 
-        {% endif %}
+    <!-- Main Content Area -->
+    <main class="app-container">
+        <div class="container-fluid px-lg-4">
+            <!-- Flash Message Display -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="row">
+                        <div class="col-12">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category in ['danger', 'error'] else ('success' if category == 'success' else ('warning' if category == 'warning' else 'info')) }} alert-dismissible fade show border-0 shadow-sm d-flex align-items-center" role="alert">
+                                    <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                                    <div>{{ message }}</div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-    </div>
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 
-</nav>
-
-
-<div class="container mt-4">
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% for category, message in messages %}
-
-            <div class="alert alert-{{ category }}">
-                {{ message }}
-            </div>
-
-        {% endfor %}
-
-    {% endwith %}
-
-
-    {% block content %}
-
-    {% endblock %}
-
-</div>
-
-
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
