@@ -1,107 +1,86 @@
 {% extends "base.html" %}
 
-{% block title %}Create Incident{% endblock %}
+{% block title %}Create Incident - OpsIncident{% endblock %}
 
 {% block content %}
-
 <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8 col-xl-7">
+        <!-- Navigation Breadcrumb / Context -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{{ url_for('incidents.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">Create Incident</li>
+            </ol>
+        </nav>
 
-    <div class="col-md-8">
-
-        <div class="card shadow">
-
-            <div class="card-body">
-
-                <h3 class="mb-4">
-                    Create New Incident
-                </h3>
-
-                <form method="POST">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Incident Title
-                        </label>
-
-                        <input
-                            type="text"
-                            name="title"
-                            class="form-control"
-                            placeholder="Example: Production server down"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Description
-                        </label>
-
-                        <textarea
-                            name="description"
-                            class="form-control"
-                            rows="5"
-                            placeholder="Describe the incident..."
-                            required></textarea>
-
-                    </div>
-
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Priority
-                        </label>
-
-                        <select
-                            name="priority"
-                            class="form-select">
-
-                            <option value="Low">
-                                Low
-                            </option>
-
-                            <option value="Medium" selected>
-                                Medium
-                            </option>
-
-                            <option value="High">
-                                High
-                            </option>
-
-                            <option value="Critical">
-                                Critical
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-                        Create Incident
-                    </button>
-
-                    <a
-                        href="{{ url_for('incidents.dashboard') }}"
-                        class="btn btn-secondary">
-                        Cancel
-                    </a>
-
-                </form>
-
+        <div class="ops-card">
+            <div class="ops-card-header">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                    <span>Log New Infrastructure Incident</span>
+                </div>
             </div>
+            
+            <div class="ops-card-body p-4">
+                <form action="{{ url_for('incidents.create_incident') }}" method="POST">
+                    
+                    <!-- Incident Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            Incident Title <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="title" 
+                            name="title" 
+                            placeholder="e.g. Production Database connection timeout in us-east-1" 
+                            required
+                            autofocus
+                        >
+                        <div class="form-text text-muted small">Provide a concise, declarative summary of the failure or symptom.</div>
+                    </div>
 
+                    <!-- Priority Level -->
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">
+                            Priority Level <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="Low">Low - Minor bug, minimal workflow impact</option>
+                            <option value="Medium" selected>Medium - Degradation with available workaround</option>
+                            <option value="High">High - Core service impacted, partial outage</option>
+                            <option value="Critical">Critical - Full system outage / revenue blocking</option>
+                        </select>
+                    </div>
+
+                    <!-- Detailed Description -->
+                    <div class="mb-4">
+                        <label for="description" class="form-label">
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        <textarea 
+                            class="form-control font-monospace" 
+                            id="description" 
+                            name="description" 
+                            rows="6" 
+                            placeholder="Detail the timeline, symptoms, affected services, error logs, and reproduction steps..." 
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- Form Controls -->
+                    <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                        <a href="{{ url_for('incidents.dashboard') }}" class="btn btn-ops-outline">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-ops-primary">
+                            <i class="bi bi-plus-circle me-1"></i> Create Incident
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-
     </div>
-
 </div>
-
 {% endblock %}
