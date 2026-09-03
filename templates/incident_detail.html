@@ -1,145 +1,159 @@
 {% extends "base.html" %}
 
-{% block title %}Incident #{{ incident["id"] }}{% endblock %}
+{% block title %}Incident #{{ incident['id'] }} - {{ incident['title'] }}{% endblock %}
 
 {% block content %}
+<!-- Back to Dashboard / Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="{{ url_for('incidents.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+        <li class="breadcrumb-item active text-dark" aria-current="page">Incident #{{ incident['id'] }}</li>
+    </ol>
+</nav>
 
-<h2 class="mb-4">
-    Incident #{{ incident["id"] }}
-</h2>
+<!-- Incident Header Bar -->
+<div class="ops-card mb-4">
+    <div class="ops-card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                    <span class="code-id fs-6">INC-{{ incident['id'] }}</span>
+                    
+                    <!-- Priority Badge -->
+                    {% if incident['priority']|lower == 'critical' %}
+                        <span class="badge badge-priority badge-priority-critical">Critical Priority</span>
+                    {% elif incident['priority']|lower == 'high' %}
+                        <span class="badge badge-priority badge-priority-high">High Priority</span>
+                    {% elif incident['priority']|lower == 'medium' %}
+                        <span class="badge badge-priority badge-priority-medium">Medium Priority</span>
+                    {% else %}
+                        <span class="badge badge-priority badge-priority-low">{{ incident['priority'] }} Priority</span>
+                    {% endif %}
 
-
-<div class="card shadow mb-4">
-
-    <div class="card-body">
-
-        <h4>
-            {{ incident["title"] }}
-        </h4>
-
-        <hr>
-
-        <p>
-            <strong>Description:</strong>
-        </p>
-
-        <p>
-            {{ incident["description"] }}
-        </p>
-
-
-        <p>
-            <strong>Priority:</strong>
-            {{ incident["priority"] }}
-        </p>
-
-
-        <p>
-            <strong>Status:</strong>
-            {{ incident["status"] }}
-        </p>
-
-
-        <p>
-            <strong>Created By:</strong>
-            {{ incident["creator_name"] or "-" }}
-        </p>
-
-
-        <p>
-            <strong>Assigned To:</strong>
-            {{ incident["assignee_name"] or "Unassigned" }}
-        </p>
-
-    </div>
-
-</div>
-
-
-{% if session.get("role") == "admin" %}
-
-<div class="card shadow mb-4">
-
-    <div class="card-body">
-
-        <h5>
-            Assign Incident
-        </h5>
-
-        <form
-            method="POST"
-            action="{{ url_for(
-                'incidents.assign_incident',
-                incident_id=incident['id']
-            ) }}">
-
-            <div class="mb-3">
-
-                <select
-                    name="assigned_to"
-                    class="form-select"
-                    required>
-
-                    <option value="">
-                        Select user
-                    </option>
-
-                    {% for user in users %}
-
-                        <option value="{{ user['id'] }}">
-                            {{ user['username'] }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
+                    <!-- Status Badge -->
+                    {% if incident['status']|lower == 'open' %}
+                        <span class="badge badge-status badge-status-open">
+                            <i class="bi bi-circle-fill" style="font-size: 6px;"></i> Open
+                        </span>
+                    {% elif incident['status']|lower == 'assigned' %}
+                        <span class="badge badge-status badge-status-assigned">
+                            <i class="bi bi-person-fill"></i> Assigned
+                        </span>
+                    {% elif incident['status']|lower == 'resolved' %}
+                        <span class="badge badge-status badge-status-resolved">
+                            <i class="bi bi-check-lg"></i> Resolved
+                        </span>
+                    {% else %}
+                        <span class="badge bg-light text-dark border">{{ incident['status'] }}</span>
+                    {% endif %}
+                </div>
+                <h1 class="h4 fw-bold text-dark mb-0">{{ incident['title'] }}</h1>
             </div>
 
-            <button class="btn btn-primary">
-                Assign
-            </button>
-
-        </form>
-
+            <!-- Resolution CTA -->
+            <div>
+                {% if incident['status']|lower != 'resolved' %}
+                <form action="{{ url_for('incidents.resolve_incident', incident_id=incident['id']) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-success d-inline-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-1"></i> Mark as Resolved
+                    </button>
+                </form>
+                {% else %}
+                <div class="text-success d-inline-flex align-items-center small fw-semibold bg-success bg-opacity-10 px-3 py-2 rounded">
+                    <i class="bi bi-patch-check-fill me-1"></i> Incident Resolved
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-
 </div>
 
-{% endif %}
-
-
-{% if incident["status"] != "Resolved" %}
-
-<div class="card shadow">
-
-    <div class="card-body">
-
-        <form
-            method="POST"
-            action="{{ url_for(
-                'incidents.resolve_incident',
-                incident_id=incident['id']
-            ) }}">
-
-            <button
-                class="btn btn-success">
-                Mark as Resolved
-            </button>
-
-        </form>
-
+<div class="row g-4">
+    <!-- Main Left Column: Description & Evidence -->
+    <div class="col-12 col-lg-8">
+        <div class="ops-card mb-4">
+            <div class="ops-card-header">
+                <i class="bi bi-file-earmark-text me-2 text-secondary"></i> Incident Description & Telemetry
+            </div>
+            <div class="ops-card-body p-4">
+                <div class="p-3 bg-light rounded border border-subtle">
+                    <p class="mb-0 text-secondary" style="white-space: pre-line; line-height: 1.6; font-size: 0.95rem;">
+                        {{ incident['description'] }}
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Right Column: Metadata & Assignment Management -->
+    <div class="col-12 col-lg-4">
+        <!-- Metadata Overview Card -->
+        <div class="ops-card mb-4">
+            <div class="ops-card-header">
+                <i class="bi bi-info-circle me-2 text-secondary"></i> Incident Metadata
+            </div>
+            <div class="ops-card-body">
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="stat-label">Reported By</div>
+                    <div class="user-tag fw-medium text-dark mt-1">
+                        <i class="bi bi-person-circle text-secondary fs-6"></i> 
+                        {{ incident['creator_name'] if incident['creator_name'] else 'System' }}
+                    </div>
+                </div>
+
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="stat-label">Assigned Engineer</div>
+                    <div class="mt-1">
+                        {% if incident['assignee_name'] %}
+                            <span class="user-tag fw-medium text-dark">
+                                <i class="bi bi-person-check-fill text-primary fs-6"></i> 
+                                {{ incident['assignee_name'] }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted small fst-italic">Currently Unassigned</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if 'created_at' in incident and incident['created_at'] %}
+                <div>
+                    <div class="stat-label">Logged At</div>
+                    <div class="small text-muted mt-1">
+                        <i class="bi bi-clock me-1"></i> {{ incident['created_at'] }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Admin Assignment Card -->
+        {% if session.get("role") == "admin" %}
+        <div class="ops-card">
+            <div class="ops-card-header">
+                <i class="bi bi-person-gear me-2 text-secondary"></i> Assign Incident
+            </div>
+            <div class="ops-card-body">
+                <form action="{{ url_for('incidents.assign_incident', incident_id=incident['id']) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="user_id" class="form-label">Select Assignee</label>
+                        <select class="form-select" id="user_id" name="user_id" required>
+                            <option value="" disabled selected>Select an engineer...</option>
+                            {% if users %}
+                                {% for user in users %}
+                                    <option value="{{ user['id'] }}" {% if incident['assigned_to'] == user['id'] %}selected{% endif %}>
+                                        {{ user['username'] }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-ops-primary w-100">
+                        <i class="bi bi-person-plus me-1"></i> Assign Ownership
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
-
-{% endif %}
-
-
-<a
-    href="{{ url_for('incidents.dashboard') }}"
-    class="btn btn-secondary mt-3">
-    Back to Dashboard
-</a>
-
 {% endblock %}
