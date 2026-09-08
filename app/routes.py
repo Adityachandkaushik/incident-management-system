@@ -11,4 +11,3 @@ return jsonify({
     "message": "Incident Management System is running"
 })
 ```
-// Chsnges 
