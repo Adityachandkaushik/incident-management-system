@@ -1,66 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}Incident #{{ incident['id'] }} - Details{% endblock %}
+{% block title %}INC-{{ incident['id'] }} Detail - OpsConsole{% endblock %}
 
 {% block content %}
-<div class="mb-3">
-    <a href="{{ url_for('incidents.dashboard') }}" class="btn-ops-subtle">
-        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-    </a>
+<!-- Scoped Path Navigation -->
+<div class="sre-breadcrumb">
+    <a href="{{ url_for('incidents.dashboard') }}">FLEET</a>
+    <span>/</span>
+    <span class="text-white">INC-{{ incident['id'] }}</span>
 </div>
 
-<!-- Header Control Box -->
-<div class="ops-box p-3 mb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+<!-- Header Diagnostics Banner -->
+<div class="panel mb-3">
+    <div class="panel-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="mono text-secondary">INC-{{ incident['id'] }}</span>
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                <span class="code-block text-secondary fs-6 fw-bold">INC-{{ incident['id'] }}</span>
                 <span class="text-secondary">/</span>
+                
                 {% if incident['priority']|lower == 'critical' %}
-                    <span class="badge-sre badge-crit">Critical</span>
+                    <span class="badge-sre badge-sre-crit">Critical Priority</span>
                 {% elif incident['priority']|lower == 'high' %}
-                    <span class="badge-sre badge-high">High</span>
+                    <span class="badge-sre badge-sre-high">High Priority</span>
                 {% elif incident['priority']|lower == 'medium' %}
-                    <span class="badge-sre badge-med">Medium</span>
+                    <span class="badge-sre badge-sre-med">Medium Priority</span>
                 {% else %}
-                    <span class="badge-sre badge-low">{{ incident['priority'] }}</span>
+                    <span class="badge-sre badge-sre-low">{{ incident['priority'] }} Priority</span>
                 {% endif %}
 
                 {% if incident['status']|lower == 'open' %}
-                    <span class="badge-sre badge-crit">Open</span>
+                    <span class="badge-sre badge-sre-crit"><i class="bi bi-record-fill" style="font-size: 6px;"></i> Open</span>
                 {% elif incident['status']|lower == 'assigned' %}
-                    <span class="badge-sre badge-high">Assigned</span>
+                    <span class="badge-sre badge-sre-high"><i class="bi bi-person-fill"></i> Assigned</span>
                 {% elif incident['status']|lower == 'resolved' %}
-                    <span class="badge-sre badge-res">Resolved</span>
+                    <span class="badge-sre badge-sre-res"><i class="bi bi-check-lg"></i> Resolved</span>
+                {% else %}
+                    <span class="badge-sre badge-sre-low">{{ incident['status'] }}</span>
                 {% endif %}
             </div>
-            <h1 class="h4 fw-bold text-white mb-0">{{ incident['title'] }}</h1>
+            <h1 class="h4 fw-bold text-white mb-0" style="letter-spacing: -0.02em;">{{ incident['title'] }}</h1>
         </div>
 
         <div>
             {% if incident['status']|lower != 'resolved' %}
             <form action="{{ url_for('incidents.resolve_incident', incident_id=incident['id']) }}" method="POST">
-                <button type="submit" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 mono">
-                    <i class="bi bi-check2-circle"></i> Mark as Resolved
+                <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-2 py-1 px-3 code-block" style="font-size: 12px;">
+                    <i class="bi bi-check2-circle"></i>
+                    <span>Resolve Incident</span>
                 </button>
             </form>
             {% else %}
-            <span class="badge-sre badge-res py-2 px-3">
-                <i class="bi bi-check-all fs-6"></i> Resolved
+            <span class="badge-sre badge-sre-res px-3 py-2" style="font-size: 11px;">
+                <i class="bi bi-patch-check-fill"></i> System Recovered
             </span>
             {% endif %}
         </div>
     </div>
 </div>
 
-<div class="row g-4">
-    <!-- Main Log / Description -->
+<div class="row g-3">
+    <!-- Left Workspace: Situation Analysis -->
     <div class="col-12 col-lg-8">
-        <div class="ops-box">
-            <div class="ops-header">Description & Diagnostic Log</div>
-            <div class="ops-body">
-                <div class="p-3 rounded border border-secondary border-opacity-25 bg-black">
-                    <p class="mb-0 text-light mono" style="white-space: pre-line; line-height: 1.6; font-size: 13px;">
+        <div class="panel">
+            <div class="panel-header">
+                <span>Telemetry Context & Reproduction Steps</span>
+                <i class="bi bi-file-earmark-code"></i>
+            </div>
+            <div class="panel-body">
+                <div class="p-3 rounded-1 border border-secondary border-opacity-10" style="background: var(--surface-low);">
+                    <p class="mb-0 text-white code-block" style="white-space: pre-line; line-height: 1.65; font-size: 13px;">
                         {{ incident['description'] }}
                     </p>
                 </div>
@@ -68,45 +76,57 @@
         </div>
     </div>
 
-    <!-- Metadata & Admin -->
+    <!-- Right Workspace: Meta & Operator Assignment -->
     <div class="col-12 col-lg-4">
-        <div class="ops-box mb-4">
-            <div class="ops-header">Metadata</div>
-            <div class="ops-body">
-                <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                    <div class="mono small text-secondary">REPORTED BY</div>
-                    <div class="fw-semibold mt-1">
-                        {{ incident['creator_name'] if incident['creator_name'] else 'System' }}
+        <!-- Metadata Overview -->
+        <div class="panel mb-3">
+            <div class="panel-header">Incident Attributes</div>
+            <div class="panel-body">
+                <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-10">
+                    <span class="form-label d-block">Telemetry Origin</span>
+                    <div class="code-block text-white mt-1">
+                        <i class="bi bi-person text-secondary me-1"></i>
+                        {{ incident['creator_name'] if incident['creator_name'] else 'SYSTEM AGENT' }}
                     </div>
                 </div>
 
-                <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                    <div class="mono small text-secondary">CURRENT ASSIGNEE</div>
-                    <div class="fw-semibold mt-1 text-info">
-                        {{ incident['assignee_name'] if incident['assignee_name'] else 'Unassigned' }}
+                <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-10">
+                    <span class="form-label d-block">Incident Commander</span>
+                    <div class="mt-1">
+                        {% if incident['assignee_name'] %}
+                            <span class="code-block text-info">
+                                <i class="bi bi-shield-check me-1"></i>{{ incident['assignee_name'] }}
+                            </span>
+                        {% else %}
+                            <span class="code-block text-secondary opacity-50" style="font-size: 11px;">Awaiting Dispatch</span>
+                        {% endif %}
                     </div>
                 </div>
 
                 {% if 'created_at' in incident and incident['created_at'] %}
                 <div>
-                    <div class="mono small text-secondary">RECORDED AT</div>
-                    <div class="mono small text-secondary mt-1">
-                        {{ incident['created_at'] }}
+                    <span class="form-label d-block">Log Timestamp</span>
+                    <div class="code-block text-secondary small mt-1">
+                        <i class="bi bi-clock me-1"></i>{{ incident['created_at'] }}
                     </div>
                 </div>
                 {% endif %}
             </div>
         </div>
 
+        <!-- Admin Delegation Console -->
         {% if session.get("role") == "admin" %}
-        <div class="ops-box">
-            <div class="ops-header">Dispatch / Assign Operator</div>
-            <div class="ops-body">
+        <div class="panel">
+            <div class="panel-header">
+                <span>Dispatch Delegation</span>
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <div class="panel-body">
                 <form action="{{ url_for('incidents.assign_incident', incident_id=incident['id']) }}" method="POST">
                     <div class="mb-3">
-                        <label for="user_id" class="mono small text-secondary mb-1">Select Engineer</label>
-                        <select class="form-select" id="user_id" name="user_id" required>
-                            <option value="" disabled selected>Choose operator...</option>
+                        <label for="user_id" class="form-label">Assign Commander</label>
+                        <select class="form-select code-block" id="user_id" name="user_id" required>
+                            <option value="" disabled selected>Select Operator...</option>
                             {% if users %}
                                 {% for user in users %}
                                     <option value="{{ user['id'] }}" {% if incident['assigned_to'] == user['id'] %}selected{% endif %}>
@@ -116,8 +136,9 @@
                             {% endif %}
                         </select>
                     </div>
-                    <button type="submit" class="btn-ops w-100">
-                        Assign Ownership
+                    <button type="submit" class="btn-sre-primary w-100 justify-content-center">
+                        <i class="bi bi-send-check"></i>
+                        <span>Transfer Ownership</span>
                     </button>
                 </form>
             </div>
