@@ -1,126 +1,145 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Incident Control{% endblock %}
+{% block title %}Telemetry Dashboard - OpsConsole{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Control Heading & Primary Dispatch -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center pb-3 mb-3 gap-3 border-bottom border-secondary border-opacity-10">
     <div>
-        <h1 class="h5 fw-bold mb-1">Infrastructure Incidents</h1>
-        <div class="text-secondary small mono">Real-time alert status and operational telemetry</div>
+        <h1 class="h5 fw-bold mb-0 text-white code-block">INCIDENT DISPATCH REGISTRY</h1>
+        <p class="text-secondary small mb-0" style="font-size: 12px;">Real-time infrastructure health and triage stream</p>
     </div>
-    <a href="{{ url_for('incidents.create_incident') }}" class="btn-ops text-decoration-none">
-        <i class="bi bi-plus-lg me-1"></i> Declare Incident
-    </a>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('incidents.create_incident') }}" class="btn-sre-primary">
+            <i class="bi bi-plus-lg"></i>
+            <span>Declare Incident</span>
+        </a>
+    </div>
 </div>
 
-<!-- Quick Stat Cards -->
-<div class="row g-3 mb-4">
+<!-- Mission-Critical Metrics HUD -->
+<div class="row g-2 mb-4">
     <div class="col-6 col-md-3">
-        <div class="ops-box p-3">
-            <div class="mono small text-secondary">TOTAL INCIDENTS</div>
-            <div class="h3 fw-bold mt-1 mb-0">{{ incidents|length }}</div>
+        <div class="kpi-tile">
+            <span class="kpi-title">Fleet Incidents</span>
+            <span class="kpi-val">{{ incidents|length }}</span>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="ops-box p-3 border-danger-subtle">
-            <div class="mono small text-danger">OPEN ALERTS</div>
-            <div class="h3 fw-bold text-danger mt-1 mb-0">
+        <div class="kpi-tile" style="border-left: 2px solid #ef4444;">
+            <span class="kpi-title text-danger">Unmitigated (Open)</span>
+            <span class="kpi-val text-danger">
                 {{ incidents|selectattr('status', 'equalto', 'Open')|list|length }}
-            </div>
+            </span>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="ops-box p-3 border-warning-subtle">
-            <div class="mono small text-warning">IN PROGRESS</div>
-            <div class="h3 fw-bold text-warning mt-1 mb-0">
+        <div class="kpi-tile" style="border-left: 2px solid #f97316;">
+            <span class="kpi-title text-warning">Active Investigation</span>
+            <span class="kpi-val text-warning">
                 {{ incidents|selectattr('status', 'equalto', 'Assigned')|list|length }}
-            </div>
+            </span>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="ops-box p-3 border-success-subtle">
-            <div class="mono small text-success">RESOLVED</div>
-            <div class="h3 fw-bold text-success mt-1 mb-0">
+        <div class="kpi-tile" style="border-left: 2px solid #10b981;">
+            <span class="kpi-title text-success">Resolved State</span>
+            <span class="kpi-val text-success">
                 {{ incidents|selectattr('status', 'equalto', 'Resolved')|list|length }}
-            </div>
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Incident Stream Table -->
-<div class="ops-box overflow-hidden">
-    <div class="ops-header d-flex justify-content-between align-items-center">
-        <span>Incident Registry</span>
-        <span>{{ incidents|length }} Records</span>
+<!-- Incident Stream Matrix -->
+<div class="panel overflow-hidden">
+    <div class="panel-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-broadcast text-primary"></i>
+            <span>Live Audit Telemetry</span>
+        </div>
+        <span class="text-secondary">{{ incidents|length }} Records Loaded</span>
     </div>
     <div class="table-responsive">
         <table class="sre-table">
             <thead>
                 <tr>
-                    <th style="width: 100px;">ID</th>
-                    <th>Summary</th>
-                    <th style="width: 120px;">Priority</th>
-                    <th style="width: 130px;">Status</th>
-                    <th>Author</th>
-                    <th>Assignee</th>
-                    <th class="text-end" style="width: 80px;">Action</th>
+                    <th style="width: 85px;">ID</th>
+                    <th>Incident Scope / Summary</th>
+                    <th style="width: 110px;">Priority</th>
+                    <th style="width: 120px;">Triage State</th>
+                    <th>Reporter</th>
+                    <th>Incident Lead</th>
+                    <th class="text-end" style="width: 70px;">Inspect</th>
                 </tr>
             </thead>
             <tbody>
                 {% for incident in incidents %}
                 <tr>
-                    <td class="mono text-secondary">#{{ incident['id'] }}</td>
+                    <td>
+                        <span class="code-block text-secondary">#{{ incident['id'] }}</span>
+                    </td>
                     <td>
                         <div class="fw-semibold text-white">{{ incident['title'] }}</div>
                         {% if incident['description'] %}
-                        <div class="text-secondary small text-truncate" style="max-width: 420px;">
+                        <div class="text-secondary small text-truncate" style="max-width: 480px; font-size: 12px;">
                             {{ incident['description'] }}
                         </div>
                         {% endif %}
                     </td>
                     <td>
                         {% if incident['priority']|lower == 'critical' %}
-                            <span class="badge-sre badge-crit">Critical</span>
+                            <span class="badge-sre badge-sre-crit">Critical</span>
                         {% elif incident['priority']|lower == 'high' %}
-                            <span class="badge-sre badge-high">High</span>
+                            <span class="badge-sre badge-sre-high">High</span>
                         {% elif incident['priority']|lower == 'medium' %}
-                            <span class="badge-sre badge-med">Medium</span>
+                            <span class="badge-sre badge-sre-med">Medium</span>
                         {% else %}
-                            <span class="badge-sre badge-low">{{ incident['priority'] }}</span>
+                            <span class="badge-sre badge-sre-low">{{ incident['priority'] }}</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if incident['status']|lower == 'open' %}
-                            <span class="badge-sre badge-crit"><i class="bi bi-circle-fill" style="font-size: 5px;"></i> Open</span>
+                            <span class="badge-sre badge-sre-crit">
+                                <i class="bi bi-record-fill" style="font-size: 6px;"></i> Open
+                            </span>
                         {% elif incident['status']|lower == 'assigned' %}
-                            <span class="badge-sre badge-high"><i class="bi bi-person-fill"></i> Assigned</span>
+                            <span class="badge-sre badge-sre-high">
+                                <i class="bi bi-arrow-repeat"></i> Assigned
+                            </span>
                         {% elif incident['status']|lower == 'resolved' %}
-                            <span class="badge-sre badge-res"><i class="bi bi-check-lg"></i> Resolved</span>
+                            <span class="badge-sre badge-sre-res">
+                                <i class="bi bi-check2"></i> Resolved
+                            </span>
                         {% else %}
-                            <span class="badge-sre badge-low">{{ incident['status'] }}</span>
+                            <span class="badge-sre badge-sre-low">{{ incident['status'] }}</span>
                         {% endif %}
                     </td>
-                    <td class="mono small text-secondary">
-                        {{ incident['creator_name'] if incident['creator_name'] else 'System' }}
+                    <td>
+                        <span class="code-block text-secondary" style="font-size: 12px;">
+                            <i class="bi bi-person me-1"></i>{{ incident['creator_name'] if incident['creator_name'] else 'SYSTEM' }}
+                        </span>
                     </td>
-                    <td class="mono small">
+                    <td>
                         {% if incident['assignee_name'] %}
-                            <span class="text-info">{{ incident['assignee_name'] }}</span>
+                            <span class="code-block text-info" style="font-size: 12px;">
+                                <i class="bi bi-shield-check me-1"></i>{{ incident['assignee_name'] }}
+                            </span>
                         {% else %}
-                            <span class="text-secondary opacity-50 fst-italic">None</span>
+                            <span class="text-secondary opacity-50 code-block" style="font-size: 11px;">Unassigned</span>
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        <a href="{{ url_for('incidents.incident_detail', incident_id=incident['id']) }}" class="btn-ops-subtle">
-                            Open
+                        <a href="{{ url_for('incidents.incident_detail', incident_id=incident['id']) }}" class="btn-sre-ghost py-1 px-2" style="font-size: 11px;">
+                            Open <i class="bi bi-chevron-right ms-1"></i>
                         </a>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
                     <td colspan="7" class="text-center py-5 text-secondary">
-                        <i class="bi bi-shield-check fs-2 d-block mb-2 text-success opacity-75"></i>
-                        No active incidents recorded.
+                        <i class="bi bi-shield-check fs-1 text-success opacity-50 d-block mb-2"></i>
+                        <span class="code-block">Zero active anomalies detected in telemetry pipeline.</span>
                     </td>
                 </tr>
                 {% endfor %}
