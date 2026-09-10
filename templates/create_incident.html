@@ -1,50 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Declare Incident - OpsConsole{% endblock %}
+{% block title %}Create Incident - Incident Operations{% endblock %}
 
 {% block content %}
-<div class="sre-breadcrumb">
-    <a href="{{ url_for('incidents.dashboard') }}">FLEET</a>
-    <span>/</span>
-    <span class="text-white">DECLARE INCIDENT</span>
-</div>
-
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
+        <div class="mb-3">
+            <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2">
+                <i class="bi bi-arrow-left me-1"></i> Cancel & Return
+            </a>
+        </div>
+
         <div class="panel">
             <div class="panel-header">
-                <span>Anomaly Declaration Form</span>
+                <span>Declare New Incident</span>
                 <i class="bi bi-exclamation-triangle text-warning"></i>
             </div>
             <div class="panel-body">
                 <form action="{{ url_for('incidents.create_incident') }}" method="POST">
                     <div class="mb-3">
                         <label for="title" class="form-label">Incident Summary *</label>
-                        <input type="text" class="form-control code-block" id="title" name="title" 
-                               placeholder="e.g. auth-cluster query timeout spikes" required autofocus>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="e.g. Ingress gateway latency degradation in us-east-1" required autofocus>
                     </div>
 
                     <div class="mb-3">
-                        <label for="priority" class="form-label">Blast Radius / Priority *</label>
+                        <label for="priority" class="form-label">Priority Level *</label>
                         <select class="form-select code-block" id="priority" name="priority" required>
-                            <option value="Low">Low - Minimal workload impairment</option>
-                            <option value="Medium" selected>Medium - Degradation with failover active</option>
-                            <option value="High">High - Critical workflow offline</option>
-                            <option value="Critical">Critical - Comprehensive cluster outage</option>
+                            <option value="Low">Low - Minor bug, minimal workflow impact</option>
+                            <option value="Medium" selected>Medium - Degradation with available workaround</option>
+                            <option value="High">High - Core service impacted, partial outage</option>
+                            <option value="Critical">Critical - Full system outage / revenue blocking</option>
                         </select>
                     </div>
 
                     <div class="mb-4">
-                        <label for="description" class="form-label">Diagnostic Telemetry & Trace *</label>
+                        <label for="description" class="form-label">Diagnostic Details & Timeline *</label>
                         <textarea class="form-control code-block" id="description" name="description" rows="5" 
-                                  placeholder="Log traces, core dump references, node IDs, impact timeline..." required></textarea>
+                                  placeholder="Detail the timeline, symptoms, affected services, and reproduction steps..." required></textarea>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary border-opacity-10">
                         <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost">Cancel</a>
                         <button type="submit" class="btn-sre-primary">
                             <i class="bi bi-check2"></i>
-                            <span>Publish Incident</span>
+                            <span>Create Incident</span>
                         </button>
                     </div>
                 </form>
