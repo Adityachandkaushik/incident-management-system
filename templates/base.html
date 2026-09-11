@@ -3,180 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Incident OpsConsole{% endblock %}</title>
+    <title>{% block title %}OpsConsole — Enterprise SRE Portal{% endblock %}</title>
 
-    <!-- Prevent Theme Flash -->
+    <!-- Theme State Shield -->
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('ops_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            const saved = localStorage.getItem('sre_active_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
         })();
     </script>
 
-    <!-- Fonts & Icons -->
+    <!-- Professional Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons & Bootstrap Grid -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        /* Dark Theme Variables */
         :root[data-theme="dark"] {
-            --bg-canvas: #090b10;
-            --bg-grid: rgba(255, 255, 255, 0.025);
-            --surface-low: #0f131a;
-            --surface: #141923;
-            --surface-hover: #1b2230;
-            --border-subtle: rgba(255, 255, 255, 0.07);
-            --border-strong: rgba(255, 255, 255, 0.14);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            --bg-base: #06080d;
+            --bg-glass: rgba(10, 13, 20, 0.75);
+            --bg-card: rgba(15, 20, 31, 0.8);
+            --bg-card-elevated: #151b2a;
+            --bg-card-hover: rgba(26, 35, 53, 0.6);
+            --bg-input: #0a0d14;
+            
+            --border-hairline: rgba(255, 255, 255, 0.08);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+            --text-heading: #ffffff;
+            --text-body: #94a3b8;
             --text-muted: #64748b;
-            --input-bg: #0b0e14;
-            --badge-glow: rgba(0, 0, 0, 0.5);
+            --accent-primary: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --grid-pattern: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
 
-            --crit-bg: rgba(239, 68, 68, 0.12);
-            --crit-border: rgba(239, 68, 68, 0.3);
-            --crit-text: #f87171;
+            /* SRE Badges */
+            --crit-bg: rgba(239, 68, 68, 0.15);
+            --crit-border: rgba(239, 68, 68, 0.35);
+            --crit-text: #fca5a5;
 
-            --high-bg: rgba(249, 115, 22, 0.12);
-            --high-border: rgba(249, 115, 22, 0.3);
-            --high-text: #fb923c;
+            --high-bg: rgba(249, 115, 22, 0.15);
+            --high-border: rgba(249, 115, 22, 0.35);
+            --high-text: #fdba74;
 
-            --med-bg: rgba(234, 179, 8, 0.12);
-            --med-border: rgba(234, 179, 8, 0.3);
-            --med-text: #facc15;
+            --med-bg: rgba(234, 179, 8, 0.15);
+            --med-border: rgba(234, 179, 8, 0.35);
+            --med-text: #fde047;
 
-            --low-bg: rgba(59, 130, 246, 0.12);
-            --low-border: rgba(59, 130, 246, 0.3);
-            --low-text: #60a5fa;
+            --low-bg: rgba(59, 130, 246, 0.15);
+            --low-border: rgba(59, 130, 246, 0.35);
+            --low-text: #93c5fd;
 
-            --res-bg: rgba(16, 185, 129, 0.12);
-            --res-border: rgba(16, 185, 129, 0.3);
-            --res-text: #34d399;
+            --res-bg: rgba(16, 185, 129, 0.15);
+            --res-border: rgba(16, 185, 129, 0.35);
+            --res-text: #6ee7b7;
         }
 
-        /* Light Theme Variables */
         :root[data-theme="light"] {
-            --bg-canvas: #f8fafc;
-            --bg-grid: rgba(0, 0, 0, 0.035);
-            --surface-low: #ffffff;
-            --surface: #ffffff;
-            --surface-hover: #f1f5f9;
-            --border-subtle: rgba(0, 0, 0, 0.08);
-            --border-strong: rgba(0, 0, 0, 0.16);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
+            --bg-base: #f8fafc;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-elevated: #ffffff;
+            --bg-card-hover: rgba(241, 245, 249, 0.8);
+            --bg-input: #ffffff;
+
+            --border-hairline: rgba(0, 0, 0, 0.06);
+            --border-card: rgba(0, 0, 0, 0.08);
+            --border-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+
+            --text-heading: #0f172a;
+            --text-body: #475569;
             --text-muted: #94a3b8;
-            --input-bg: #f8fafc;
-            --badge-glow: rgba(0, 0, 0, 0.05);
+            --accent-primary: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.15);
+            --grid-pattern: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
 
-            --crit-bg: #fef2f2;
-            --crit-border: #fecaca;
-            --crit-text: #dc2626;
+            /* SRE Badges */
+            --crit-bg: #fee2e2;
+            --crit-border: #fca5a5;
+            --crit-text: #b91c1c;
 
-            --high-bg: #fff7ed;
-            --high-border: #fed7aa;
-            --high-text: #ea580c;
+            --high-bg: #ffedd5;
+            --high-border: #fdba74;
+            --high-text: #c2410c;
 
-            --med-bg: #fefce8;
-            --med-border: #fef08a;
-            --med-text: #ca8a04;
+            --med-bg: #fef9c3;
+            --med-border: #fde047;
+            --med-text: #a16207;
 
-            --low-bg: #eff6ff;
-            --low-border: #bfdbfe;
-            --low-text: #2563eb;
+            --low-bg: #dbeafe;
+            --low-border: #93c5fd;
+            --low-text: #1d4ed8;
 
-            --res-bg: #f0fdf4;
-            --res-border: #bbf7d0;
-            --res-text: #16a34a;
+            --res-bg: #d1fae5;
+            --res-border: #6ee7b7;
+            --res-text: #047857;
         }
 
         *, *::before, *::after {
             box-sizing: border-box;
-            transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+            transition: background 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease;
         }
 
         body {
-            background-color: var(--bg-canvas);
-            background-image: 
-                linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
-                linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
-            background-size: 32px 32px;
-            color: var(--text-primary);
+            background-color: var(--bg-base);
+            background-image: var(--grid-pattern);
+            background-size: 24px 24px;
+            color: var(--text-body);
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             letter-spacing: -0.015em;
             margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Command Navigation */
-        .cmd-nav {
-            height: 52px;
-            background: var(--surface-low);
-            border-bottom: 1px solid var(--border-subtle);
+        /* Ambient Glow Backdrop */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1200px;
+            height: 380px;
+            background: radial-gradient(50% 50% at 50% 0%, var(--accent-glow) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Nav Header */
+        .ops-nav {
+            height: 56px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-hairline);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 24px;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
         }
 
-        .cmd-brand {
+        .ops-brand {
             font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            color: var(--text-primary);
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: var(--text-heading);
             text-decoration: none;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             text-transform: uppercase;
         }
 
-        .cmd-status-pulse {
+        .beacon {
             width: 8px;
             height: 8px;
-            background-color: #10b981;
+            background: #10b981;
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+            position: relative;
+            box-shadow: 0 0 10px #10b981;
+        }
+        .beacon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.4);
+            animation: pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
 
-        .panel {
-            background: var(--surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            box-shadow: 0 4px 16px var(--badge-glow);
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
         }
 
-        .panel-header {
-            padding: 12px 18px;
-            border-bottom: 1px solid var(--border-subtle);
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace;
+        /* Panels & Cards */
+        .sre-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.3), var(--border-highlight);
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sre-panel-header {
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.015);
+            border-bottom: 1px solid var(--border-hairline);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
         }
 
-        .panel-body {
-            padding: 18px;
+        .sre-panel-body {
+            padding: 20px;
         }
 
-        .code-block {
+        .mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Table Design */
+        /* Metric Tile */
+        .metric-tile {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: var(--border-highlight);
+            border-radius: 10px;
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+        .metric-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), var(--border-highlight);
+        }
+
+        .metric-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-top: 6px;
+            line-height: 1;
+        }
+
+        /* Interactive Data Table */
         .sre-table {
             width: 100%;
             border-collapse: separate;
@@ -191,208 +272,183 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-strong);
-            background: var(--surface-low);
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.015);
+            border-bottom: 1px solid var(--border-card);
             white-space: nowrap;
         }
 
         .sre-table tbody td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-subtle);
-            color: var(--text-primary);
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-hairline);
+            color: var(--text-body);
             vertical-align: middle;
             font-size: 13.5px;
         }
 
-        .sre-table tbody tr:hover {
-            background-color: var(--surface-hover);
+        .sre-table tbody tr {
+            transition: background 140ms ease;
         }
 
-        /* Status & Priority Badges */
-        .badge-sre {
+        .sre-table tbody tr:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        /* Badges */
+        .sre-badge {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             letter-spacing: 0.03em;
             text-transform: uppercase;
-            padding: 2.5px 8px;
+            padding: 3px 8px;
             border-radius: 4px;
             display: inline-flex;
             align-items: center;
             gap: 5px;
             white-space: nowrap;
         }
+        .sre-badge-crit { background: var(--crit-bg); color: var(--crit-text); border: 1px solid var(--crit-border); }
+        .sre-badge-high { background: var(--high-bg); color: var(--high-text); border: 1px solid var(--high-border); }
+        .sre-badge-med  { background: var(--med-bg);  color: var(--med-text);  border: 1px solid var(--med-border); }
+        .sre-badge-low  { background: var(--low-bg);  color: var(--low-text);  border: 1px solid var(--low-border); }
+        .sre-badge-res  { background: var(--res-bg);  color: var(--res-text);  border: 1px solid var(--res-border); }
 
-        .badge-sre-crit { background: var(--crit-bg); color: var(--crit-text); border: 1px solid var(--crit-border); }
-        .badge-sre-high { background: var(--high-bg); color: var(--high-text); border: 1px solid var(--high-border); }
-        .badge-sre-med  { background: var(--med-bg);  color: var(--med-text);  border: 1px solid var(--med-border); }
-        .badge-sre-low  { background: var(--low-bg);  color: var(--low-text);  border: 1px solid var(--low-border); }
-        .badge-sre-res  { background: var(--res-bg);  color: var(--res-text);  border: 1px solid var(--res-border); }
-
-        /* Form Controls */
-        .form-label {
-            font-size: 11.5px;
+        /* Buttons */
+        .btn-ops-primary {
+            background: #2563eb;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 12.5px;
             font-weight: 600;
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: uppercase;
-            margin-bottom: 6px;
+            padding: 7px 16px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+            cursor: pointer;
+            transition: all 160ms ease;
+        }
+        .btn-ops-primary:hover {
+            background: #1d4ed8;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.5);
+            transform: translateY(-1px);
         }
 
+        .btn-ops-subtle {
+            background: transparent;
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 160ms ease;
+        }
+        .btn-ops-subtle:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-heading);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Form Inputs */
         .form-control, .form-select {
-            background-color: var(--input-bg) !important;
-            border: 1px solid var(--border-strong) !important;
-            color: var(--text-primary) !important;
+            background-color: var(--bg-input) !important;
+            border: 1px solid var(--border-card) !important;
+            color: var(--text-heading) !important;
             border-radius: 6px;
             font-size: 13.5px;
-            padding: 8px 12px;
+            padding: 9px 13px;
         }
-
         .form-control:focus, .form-select:focus {
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+            border-color: var(--accent-primary) !important;
+            box-shadow: 0 0 0 3px var(--accent-glow) !important;
             outline: none;
         }
 
-        /* Buttons */
-        .btn-sre-primary {
-            background-color: #2563eb;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 14px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .btn-sre-primary:hover {
-            background-color: #1d4ed8;
-            color: #ffffff;
-        }
-
-        .btn-sre-ghost {
+        /* Theme Selector Switch */
+        .theme-switch {
             background: transparent;
-            border: 1px solid var(--border-strong);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 12px;
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
             border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .btn-sre-ghost:hover {
-            background: var(--surface-hover);
-            color: var(--text-primary);
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle-btn {
-            background: transparent;
-            border: 1px solid var(--border-strong);
-            color: var(--text-secondary);
-            border-radius: 6px;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: all 140ms ease;
         }
-
-        .theme-toggle-btn:hover {
-            color: var(--text-primary);
-            background: var(--surface-hover);
-        }
-
-        /* KPI Metric Tiles */
-        .kpi-tile {
-            background: var(--surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 16px;
-        }
-
-        .kpi-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-
-        .kpi-val {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
-            margin-top: 6px;
+        .theme-switch:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-heading);
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
+    <div class="ambient-glow"></div>
 
-    <!-- Header Navigation Bar -->
-    <header class="cmd-nav">
+    <!-- Sticky Glass Navbar -->
+    <header class="ops-nav">
         <div class="d-flex align-items-center gap-3">
-            <a href="{{ url_for('incidents.dashboard') if session.get('user_id') else '#' }}" class="cmd-brand">
-                <span class="cmd-status-pulse"></span>
-                <span>Incident Console</span>
+            <a href="{{ url_for('incidents.dashboard') if session.get('user_id') else '#' }}" class="ops-brand">
+                <span class="beacon"></span>
+                <span>Command//SRE</span>
             </a>
             
             {% if session.get('user_id') %}
             <span class="text-secondary opacity-50">/</span>
-            <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2" style="font-size: 12px;">
-                <i class="bi bi-grid me-1"></i> Dashboard
+            <a href="{{ url_for('incidents.dashboard') }}" class="btn-ops-subtle py-1 px-2" style="font-size: 12px;">
+                <i class="bi bi-grid-fill me-1"></i> Fleet
             </a>
             {% endif %}
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <!-- Theme Toggle Button -->
-            <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" type="button">
+            <!-- Light/Dark Mode Switcher -->
+            <button id="themeToggle" class="theme-switch" title="Toggle Surface Mode" type="button">
                 <i id="themeIcon" class="bi bi-sun"></i>
             </button>
 
             {% if session.get('user_id') %}
-            <div class="d-flex align-items-center gap-2 ms-2">
+            <div class="d-flex align-items-center gap-2 ms-2 ps-2 border-start border-secondary border-opacity-25">
                 <i class="bi bi-person-circle text-secondary"></i>
-                <span class="code-block small">{{ session.get('username') }}</span>
+                <span class="mono small text-heading fw-semibold">{{ session.get('username') }}</span>
                 {% if session.get('role') %}
-                <span class="badge-sre badge-sre-low" style="font-size: 10px;">{{ session.get('role') }}</span>
+                <span class="sre-badge sre-badge-low" style="font-size: 9.5px;">{{ session.get('role') }}</span>
                 {% endif %}
             </div>
-            <a href="{{ url_for('auth.logout') }}" class="btn-sre-ghost py-1 px-2 text-danger border-danger-subtle ms-1" title="Logout">
-                <i class="bi bi-box-arrow-right"></i>
+            <a href="{{ url_for('auth.logout') }}" class="btn-ops-subtle py-1 px-2 text-danger border-danger-subtle ms-1" title="Kill Session">
+                <i class="bi bi-power"></i>
             </a>
             {% else %}
-            <a href="{{ url_for('auth.login') }}" class="btn-sre-ghost py-1 px-3">Sign In</a>
-            <a href="{{ url_for('auth.register') }}" class="btn-sre-primary py-1 px-3">Register</a>
+            <a href="{{ url_for('auth.login') }}" class="btn-ops-subtle py-1 px-3">Sign In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn-ops-primary py-1 px-3">Enroll</a>
             {% endif %}
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="container-fluid px-lg-4 py-4 flex-grow-1">
+    <!-- Main Workspace Container -->
+    <main class="container-fluid px-lg-4 py-4 flex-grow-1" style="position: relative; z-index: 1;">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mb-3">
                     {% for category, message in messages %}
-                        <div class="alert border-0 rounded d-flex align-items-center gap-2 py-2 px-3 small text-white" 
+                        <div class="alert border-0 rounded-2 d-flex align-items-center gap-2 py-2 px-3 small text-white shadow-sm" 
                              style="background: {{ '#dc2626' if category in ['danger', 'error'] else ('#059669' if category == 'success' else '#2563eb') }};" 
                              role="alert">
-                            <i class="bi bi-info-circle-fill"></i>
-                            <div class="code-block">{{ message }}</div>
+                            <i class="bi bi-broadcast"></i>
+                            <div class="mono">{{ message }}</div>
                         </div>
                     {% endfor %}
                 </div>
@@ -402,28 +458,23 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Theme Controller Script -->
+    <!-- Theme Controller Engine -->
     <script>
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
 
-        function updateThemeIcon(theme) {
-            if (theme === 'dark') {
-                themeIcon.className = 'bi bi-sun';
-            } else {
-                themeIcon.className = 'bi bi-moon-stars';
-            }
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('sre_active_theme', theme);
+            themeIcon.className = theme === 'dark' ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary';
         }
 
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        updateThemeIcon(currentTheme);
+        const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        applyTheme(activeTheme);
 
         themeToggle.addEventListener('click', () => {
-            const activeTheme = document.documentElement.getAttribute('data-theme');
-            const targetTheme = activeTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', targetTheme);
-            localStorage.setItem('ops_theme', targetTheme);
-            updateThemeIcon(targetTheme);
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
