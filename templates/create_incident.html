@@ -1,50 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Declare Incident — OpsConsole{% endblock %}
+{% block title %}Declare Incident - OpsConsole{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
         <div class="mb-3">
-            <a href="{{ url_for('incidents.dashboard') }}" class="btn-ops-subtle py-1 px-2" style="font-size: 12px;">
+            <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2">
                 <i class="bi bi-arrow-left me-1"></i> Cancel & Return
             </a>
         </div>
 
-        <div class="sre-panel">
-            <div class="sre-panel-header">
-                <span>Declare Production Incident</span>
-                <i class="bi bi-exclamation-triangle text-warning"></i>
+        <div class="panel">
+            <div class="panel-header">
+                <span>Log Production Disruption</span>
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
             </div>
-            <div class="sre-panel-body">
+            <div class="panel-body">
                 <form action="{{ url_for('incidents.create_incident') }}" method="POST">
                     <div class="mb-3">
-                        <label for="title" class="mono small text-muted d-block mb-1">Incident Summary *</label>
-                        <input type="text" class="form-control" id="title" name="title" 
-                               placeholder="e.g. Core API gateway elevated 504 gateway timeouts" required autofocus>
+                        <label for="title" class="form-label">Incident Summary *</label>
+                        <input type="text" class="form-control code-block" id="title" name="title" 
+                               placeholder="e.g. Rate-limit threshold failures across payments-api" required autofocus>
                     </div>
 
                     <div class="mb-3">
-                        <label for="priority" class="mono small text-muted d-block mb-1">Priority Level *</label>
-                        <select class="form-select mono" id="priority" name="priority" required>
-                            <option value="Low">Low — Non-blocking bug, minor scope</option>
-                            <option value="Medium" selected>Medium — Partial service degradation</option>
-                            <option value="High">High — Primary customer workflows affected</option>
-                            <option value="Critical">Critical — Comprehensive cluster outage</option>
+                        <label for="priority" class="form-label">Assessed Severity / Tier *</label>
+                        <select class="form-select code-block" id="priority" name="priority" required>
+                            <option value="Low">Low - Minimal workload impairment</option>
+                            <option value="Medium" selected>Medium - Degraded operation with workaround</option>
+                            <option value="High">High - Core service impacted, partial outage</option>
+                            <option value="Critical">Critical - Comprehensive service outage</option>
                         </select>
                     </div>
 
                     <div class="mb-4">
-                        <label for="description" class="mono small text-muted d-block mb-1">Technical Context & Diagnostic Logs *</label>
-                        <textarea class="form-control mono" id="description" name="description" rows="5" 
-                                  placeholder="Provide stack trace snippets, affected cluster/regions, observed p99 latency..." required></textarea>
+                        <label for="description" class="form-label">Diagnostic Telemetry & Trace *</label>
+                        <textarea class="form-control code-block" id="description" name="description" rows="5" 
+                                  placeholder="Detail the timeline, symptoms, affected services, and reproduction steps..." required></textarea>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary border-opacity-10">
-                        <a href="{{ url_for('incidents.dashboard') }}" class="btn-ops-subtle">Cancel</a>
-                        <button type="submit" class="btn-ops-primary">
+                        <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost">Cancel</a>
+                        <button type="submit" class="btn-sre-primary">
                             <i class="bi bi-check2"></i>
-                            <span>Dispatch Incident</span>
+                            <span>Publish Incident</span>
                         </button>
                     </div>
                 </form>
