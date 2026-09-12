@@ -1,54 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}INC-{{ incident['id'] }} Detail — OpsConsole{% endblock %}
+{% block title %}Incident #{{ incident['id'] }} Detail{% endblock %}
 
 {% block content %}
 <div class="mb-3">
-    <a href="{{ url_for('incidents.dashboard') }}" class="btn-ops-subtle py-1 px-2 text-decoration-none" style="font-size: 12px;">
-        <i class="bi bi-arrow-left me-1"></i> Return to Registry
+    <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2 text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i> Back to Fleet
     </a>
 </div>
 
-<!-- Context Diagnostic Banner -->
-<div class="sre-panel mb-4">
-    <div class="sre-panel-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+<!-- Top Status Console -->
+<div class="panel mb-4">
+    <div class="panel-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                <span class="mono text-muted fw-bold">INC-{{ incident['id'] }}</span>
-                <span class="text-muted opacity-50">/</span>
+                <span class="code-block text-secondary fw-bold">INC-{{ incident['id'] }}</span>
+                <span class="text-secondary opacity-50">/</span>
                 
                 {% if incident['priority']|lower == 'critical' %}
-                    <span class="sre-badge sre-badge-crit">Critical Priority</span>
+                    <span class="badge-sre badge-sre-crit"><i class="bi bi-lightning-fill"></i> Critical Priority</span>
                 {% elif incident['priority']|lower == 'high' %}
-                    <span class="sre-badge sre-badge-high">High Priority</span>
+                    <span class="badge-sre badge-sre-high">High Priority</span>
                 {% elif incident['priority']|lower == 'medium' %}
-                    <span class="sre-badge sre-badge-med">Medium Priority</span>
+                    <span class="badge-sre badge-sre-med">Medium Priority</span>
                 {% else %}
-                    <span class="sre-badge sre-badge-low">{{ incident['priority'] }} Priority</span>
+                    <span class="badge-sre badge-sre-low">{{ incident['priority'] }} Priority</span>
                 {% endif %}
 
                 {% if incident['status']|lower == 'open' %}
-                    <span class="sre-badge sre-badge-crit">Open</span>
+                    <span class="badge-sre badge-sre-crit">Open</span>
                 {% elif incident['status']|lower == 'assigned' %}
-                    <span class="sre-badge sre-badge-high">Assigned</span>
+                    <span class="badge-sre badge-sre-high">Assigned</span>
                 {% elif incident['status']|lower == 'resolved' %}
-                    <span class="sre-badge sre-badge-res">Resolved</span>
+                    <span class="badge-sre badge-sre-res">Resolved</span>
                 {% endif %}
             </div>
-            <h1 class="h4 fw-bold mb-0 text-heading">{{ incident['title'] }}</h1>
+            <h1 class="h4 fw-bold mb-0">{{ incident['title'] }}</h1>
         </div>
 
         <div>
             {% if incident['status']|lower != 'resolved' %}
             <form action="{{ url_for('incidents.resolve_incident', incident_id=incident['id']) }}" method="POST">
-                <button type="submit" class="btn btn-outline-success d-flex align-items-center gap-2 py-2 px-3 mono shadow-sm" style="font-size: 12.5px; border-radius: 6px;">
-                    <i class="bi bi-check2-circle fs-6"></i>
-                    <span>Mark as Resolved</span>
+                <button type="submit" class="btn btn-outline-success d-flex align-items-center gap-2 py-1 px-3 code-block" style="font-size: 13px;">
+                    <i class="bi bi-check-circle"></i> Mark as Resolved
                 </button>
             </form>
             {% else %}
-            <span class="sre-badge sre-badge-res px-3 py-2" style="font-size: 12px;">
-                <i class="bi bi-patch-check-fill me-1"></i> Anomaly Mitigated
+            <span class="badge-sre badge-sre-res px-3 py-2" style="font-size: 12px;">
+                <i class="bi bi-patch-check-fill me-1"></i> State Resolved
             </span>
             {% endif %}
         </div>
@@ -56,16 +55,16 @@
 </div>
 
 <div class="row g-4">
-    <!-- Log & Core Context -->
+    <!-- Log Dump Panel -->
     <div class="col-12 col-lg-8">
-        <div class="sre-panel">
-            <div class="sre-panel-header">
-                <span>Incident Log & Telemetry Output</span>
-                <i class="bi bi-file-earmark-code"></i>
+        <div class="panel">
+            <div class="panel-header">
+                <span>Incident Diagnostics & Trace</span>
+                <i class="bi bi-terminal"></i>
             </div>
-            <div class="sre-panel-body">
-                <div class="p-3 rounded border border-secondary border-opacity-10" style="background: var(--bg-input);">
-                    <p class="mb-0 mono text-heading" style="white-space: pre-line; line-height: 1.7; font-size: 13.5px;">
+            <div class="panel-body">
+                <div class="p-3 rounded border border-secondary border-opacity-10" style="background: var(--input-bg);">
+                    <p class="mb-0 code-block" style="white-space: pre-line; line-height: 1.65; font-size: 13.5px;">
                         {{ incident['description'] }}
                     </p>
                 </div>
@@ -73,36 +72,36 @@
         </div>
     </div>
 
-    <!-- Metadata & Admin Assignment -->
+    <!-- Metadata & Dispatch Console -->
     <div class="col-12 col-lg-4">
-        <div class="sre-panel mb-4">
-            <div class="sre-panel-header">Metadata & Audit</div>
-            <div class="sre-panel-body">
+        <div class="panel mb-4">
+            <div class="panel-header">Incident Topology</div>
+            <div class="panel-body">
                 <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-10">
-                    <span class="mono small text-muted d-block mb-1">RECORDED BY</span>
-                    <div class="mono fw-semibold text-heading">
+                    <span class="form-label d-block">Origin Node / Reporter</span>
+                    <div class="code-block fw-semibold mt-1">
                         <i class="bi bi-person text-secondary me-1"></i>
                         {{ incident['creator_name'] if incident['creator_name'] else 'SYSTEM AGENT' }}
                     </div>
                 </div>
 
                 <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-10">
-                    <span class="mono small text-muted d-block mb-1">INCIDENT COMMANDER</span>
+                    <span class="form-label d-block">Assigned Commander</span>
                     <div class="mt-1">
                         {% if incident['assignee_name'] %}
-                            <span class="mono text-primary fw-semibold">
+                            <span class="code-block text-primary fw-semibold">
                                 <i class="bi bi-shield-check me-1"></i>{{ incident['assignee_name'] }}
                             </span>
                         {% else %}
-                            <span class="mono text-muted opacity-50 fst-italic">Unassigned</span>
+                            <span class="code-block text-secondary opacity-50 fst-italic">Awaiting Delegation</span>
                         {% endif %}
                     </div>
                 </div>
 
                 {% if 'created_at' in incident and incident['created_at'] %}
                 <div>
-                    <span class="mono small text-muted d-block mb-1">TIMESTAMP</span>
-                    <div class="mono small text-muted mt-1">
+                    <span class="form-label d-block">Audit Ingestion Time</span>
+                    <div class="code-block text-secondary small mt-1">
                         <i class="bi bi-clock me-1"></i>{{ incident['created_at'] }}
                     </div>
                 </div>
@@ -111,17 +110,17 @@
         </div>
 
         {% if session.get("role") == "admin" %}
-        <div class="sre-panel">
-            <div class="sre-panel-header">
-                <span>Dispatch Delegation</span>
-                <i class="bi bi-shield-lock text-primary"></i>
+        <div class="panel">
+            <div class="panel-header">
+                <span>Commander Delegation</span>
+                <i class="bi bi-person-gear"></i>
             </div>
-            <div class="sre-panel-body">
+            <div class="panel-body">
                 <form action="{{ url_for('incidents.assign_incident', incident_id=incident['id']) }}" method="POST">
                     <div class="mb-3">
-                        <label for="user_id" class="mono small text-muted d-block mb-2">Assign Engineer</label>
-                        <select class="form-select mono" id="user_id" name="user_id" required>
-                            <option value="" disabled selected>Select an engineer...</option>
+                        <label for="user_id" class="form-label">Transfer To Engineer</label>
+                        <select class="form-select code-block" id="user_id" name="user_id" required>
+                            <option value="" disabled selected>Select operator...</option>
                             {% if users %}
                                 {% for user in users %}
                                     <option value="{{ user['id'] }}" {% if incident['assigned_to'] == user['id'] %}selected{% endif %}>
@@ -131,9 +130,9 @@
                             {% endif %}
                         </select>
                     </div>
-                    <button type="submit" class="btn-ops-primary w-100 justify-content-center">
-                        <i class="bi bi-person-check"></i>
-                        <span>Assign Ownership</span>
+                    <button type="submit" class="btn-sre-primary w-100 justify-content-center">
+                        <i class="bi bi-send-check"></i>
+                        <span>Dispatch Assignment</span>
                     </button>
                 </form>
             </div>
