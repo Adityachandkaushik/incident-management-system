@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Enrollment — OpsConsole{% endblock %}
+{% block title %}Register - OpsConsole{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
     <div class="col-12 col-sm-8 col-md-5 col-lg-4">
-        <div class="sre-panel">
-            <div class="sre-panel-header justify-content-center">
-                <span>OPERATOR ENROLLMENT</span>
+        <div class="panel">
+            <div class="panel-header justify-content-center">
+                <span>CREATE OPERATOR PROFILE</span>
             </div>
-            <div class="sre-panel-body">
+            <div class="panel-body">
                 <form action="{{ url_for('auth.register') }}" method="POST">
                     <div class="mb-3">
-                        <label for="username" class="mono small text-muted d-block mb-1">Choose Username</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Desired username" required autofocus>
+                        <label for="username" class="form-label">Desired Handle</label>
+                        <input type="text" class="form-control code-block" id="username" name="username" placeholder="Choose username" required autofocus>
                     </div>
                     <div class="mb-4">
-                        <label for="password" class="mono small text-muted d-block mb-1">Create Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Create strong passphrase" required>
+                        <label for="password" class="form-label">Keyphrase</label>
+                        <input type="password" class="form-control code-block" id="password" name="password" placeholder="Choose password" required>
                     </div>
-                    <button type="submit" class="btn-ops-primary w-100 justify-content-center py-2">
-                        <i class="bi bi-shield-plus"></i>
-                        <span>Enroll Account</span>
+                    <button type="submit" class="btn-sre-primary w-100 justify-content-center py-2">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Provision Credentials</span>
                     </button>
                 </form>
                 <div class="text-center mt-3 pt-3 border-top border-secondary border-opacity-10">
-                    <span class="text-muted small">Already enrolled? </span>
+                    <span class="text-secondary small">Already authorized? </span>
                     <a href="{{ url_for('auth.login') }}" class="small text-decoration-none fw-semibold">Sign In</a>
                 </div>
             </div>
