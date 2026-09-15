@@ -1,22 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Live Incidents{% endblock %}
+{% block title %}Operations Dashboard - Incidents{% endblock %}
 
 {% block content %}
+<!-- Context Header -->
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center pb-3 mb-4 gap-3 border-bottom border-secondary border-opacity-10">
     <div>
-        <h1 class="h4 fw-bold mb-1">Fleet Operations Console</h1>
-        <p class="text-secondary small mb-0">Live observability feed and critical failure containment.</p>
+        <h1 class="h4 fw-bold mb-1">Incident Dispatch Operations</h1>
+        <p class="text-secondary small mb-0">Monitor, track and manage infrastructure incidents.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a href="{{ url_for('incidents.create_incident') }}" class="btn-sre-primary">
-            <i class="bi bi-plus-circle"></i>
-            <span>Declare Incident</span>
+    <div class="d-flex gap-2 w-100 w-md-auto">
+        <a href="{{ url_for('incidents.create_incident') }}" class="btn-sre-primary w-100 w-md-auto">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create Incident</span>
         </a>
     </div>
 </div>
 
-<!-- Metric HUD -->
+<!-- Reactive KPI Grid -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
         <div class="kpi-tile">
@@ -26,7 +27,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="kpi-tile" style="border-left: 3px solid var(--crit);">
-            <span class="kpi-title text-danger">Unmitigated Open</span>
+            <span class="kpi-title text-danger">Open Alert</span>
             <div class="kpi-val text-danger">
                 {{ incidents|selectattr('status', 'equalto', 'Open')|list|length }}
             </div>
@@ -34,7 +35,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="kpi-tile" style="border-left: 3px solid var(--high);">
-            <span class="kpi-title text-warning">Investigating</span>
+            <span class="kpi-title text-warning">Assigned</span>
             <div class="kpi-val text-warning">
                 {{ incidents|selectattr('status', 'equalto', 'Assigned')|list|length }}
             </div>
@@ -42,7 +43,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="kpi-tile" style="border-left: 3px solid var(--res);">
-            <span class="kpi-title text-success">Recovered</span>
+            <span class="kpi-title text-success">Resolved</span>
             <div class="kpi-val text-success">
                 {{ incidents|selectattr('status', 'equalto', 'Resolved')|list|length }}
             </div>
@@ -50,44 +51,44 @@
     </div>
 </div>
 
-<!-- Live Filter Stream Bar -->
-<div class="panel overflow-hidden">
-    <div class="panel-header flex-wrap gap-2">
+<!-- Incident Stream Matrix with Instant Search -->
+<div class="panel">
+    <div class="panel-header flex-column flex-sm-row gap-3">
         <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-funnel"></i>
-            <span>Incident Stream</span>
+            <i class="bi bi-activity text-primary"></i>
+            <span>Fleet Incidents Registry</span>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="input-group input-group-sm" style="width: 260px;">
+        <div class="w-100 w-sm-auto" style="max-width: 300px;">
+            <div class="input-group input-group-sm">
                 <span class="input-group-text bg-transparent border-secondary border-opacity-25 text-secondary">
                     <i class="bi bi-search"></i>
                 </span>
-                <input type="text" id="streamSearch" class="form-control" placeholder="Search ID, title, owner...">
+                <input type="text" id="liveSearch" class="form-control" placeholder="Search ID, title, author...">
             </div>
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="sre-table" id="incidentsTable">
+    <div class="table-container">
+        <table class="sre-table" id="incidentsGrid">
             <thead>
                 <tr>
-                    <th style="width: 90px;">ID</th>
-                    <th>Failure Scope</th>
-                    <th style="width: 120px;">Priority</th>
-                    <th style="width: 130px;">Status</th>
-                    <th>Reported By</th>
-                    <th>Lead Engineer</th>
-                    <th class="text-end" style="width: 90px;">Action</th>
+                    <th style="width: 85px;">ID</th>
+                    <th>Incident Overview</th>
+                    <th style="width: 110px;">Priority</th>
+                    <th style="width: 120px;">Status</th>
+                    <th>Created By</th>
+                    <th>Assigned To</th>
+                    <th class="text-end" style="width: 85px;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for incident in incidents %}
-                <tr class="incident-row">
+                <tr class="incident-row" onclick="window.location='{{ url_for('incidents.incident_detail', incident_id=incident['id']) }}'">
                     <td class="code-block text-secondary">#{{ incident['id'] }}</td>
                     <td>
-                        <div class="fw-semibold incident-title">{{ incident['title'] }}</div>
+                        <div class="fw-semibold text-wrap">{{ incident['title'] }}</div>
                         {% if incident['description'] %}
-                        <div class="text-secondary small text-truncate" style="max-width: 480px; font-size: 12px;">
+                        <div class="text-secondary small text-truncate" style="max-width: 440px; font-size: 12px;">
                             {{ incident['description'] }}
                         </div>
                         {% endif %}
@@ -109,7 +110,7 @@
                         {% elif incident['status']|lower == 'assigned' %}
                             <span class="badge-sre badge-sre-high"><i class="bi bi-arrow-repeat"></i> Assigned</span>
                         {% elif incident['status']|lower == 'resolved' %}
-                            <span class="badge-sre badge-sre-res"><i class="bi bi-check-circle"></i> Resolved</span>
+                            <span class="badge-sre badge-sre-res"><i class="bi bi-check2"></i> Resolved</span>
                         {% else %}
                             <span class="badge-sre badge-sre-low">{{ incident['status'] }}</span>
                         {% endif %}
@@ -124,7 +125,7 @@
                             <span class="text-secondary opacity-50 fst-italic">Unassigned</span>
                         {% endif %}
                     </td>
-                    <td class="text-end">
+                    <td class="text-end" onclick="event.stopPropagation();">
                         <a href="{{ url_for('incidents.incident_detail', incident_id=incident['id']) }}" class="btn-sre-ghost py-1 px-2" style="font-size: 11.5px;">
                             View <i class="bi bi-chevron-right ms-1"></i>
                         </a>
@@ -134,7 +135,7 @@
                 <tr>
                     <td colspan="7" class="text-center py-5 text-secondary">
                         <i class="bi bi-shield-check fs-1 text-success opacity-50 d-block mb-2"></i>
-                        All services nominal. Zero active alerts.
+                        Zero incidents logged. Telemetry operational.
                     </td>
                 </tr>
                 {% endfor %}
@@ -143,14 +144,13 @@
     </div>
 </div>
 
-<!-- Instant Dynamic Table Search Script -->
+<!-- Instant Client Search Interaction -->
 <script>
-    document.getElementById('streamSearch').addEventListener('input', function(e) {
-        const term = e.target.value.toLowerCase();
+    document.getElementById('liveSearch').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('.incident-row');
-        rows.forEach(row => {
-            const content = row.innerText.toLowerCase();
-            row.style.display = content.includes(term) ? '' : 'none';
+        rows.forEach(r => {
+            r.style.display = r.innerText.toLowerCase().includes(query) ? '' : 'none';
         });
     });
 </script>
