@@ -7,7 +7,7 @@ A lightweight Incident Management System designed to help teams log, track, assi
 
 The project is being developed as a hands-on DevOps project, gradually moving from a local Flask application to a containerized, CI/CD-driven deployment on AWS.
 
----
+---   
 
 ## 🎯 Project Objective
 
