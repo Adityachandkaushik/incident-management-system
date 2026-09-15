@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OpsConsole - Incident Platform{% endblock %}</title>
+    <title>{% block title %}Incident Management{% endblock %}</title>
 
     <script>
         (function() {
-            const saved = localStorage.getItem('sre_theme') || 'dark';
+            const saved = localStorage.getItem('ops_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', saved);
         })();
     </script>
@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Icons & Grid -->
+    <!-- Icons & Bootstrap Grid -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -25,11 +25,11 @@
         :root[data-theme="dark"] {
             --bg-canvas: #07090e;
             --bg-grid: rgba(255, 255, 255, 0.035);
-            --spotlight: rgba(59, 130, 246, 0.08);
+            --spotlight: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 65%);
             --surface-low: #0c0f17;
             --surface: #111622;
             --surface-elevated: #161c2b;
-            --surface-hover: #1c2436;
+            --surface-hover: #1b2230;
             --border-subtle: rgba(255, 255, 255, 0.08);
             --border-strong: rgba(255, 255, 255, 0.16);
             --text-primary: #f8fafc;
@@ -62,7 +62,7 @@
         :root[data-theme="light"] {
             --bg-canvas: #f8fafc;
             --bg-grid: rgba(0, 0, 0, 0.04);
-            --spotlight: rgba(37, 99, 235, 0.05);
+            --spotlight: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.06) 0%, transparent 65%);
             --surface-low: #ffffff;
             --surface: #ffffff;
             --surface-elevated: #f1f5f9;
@@ -98,16 +98,16 @@
 
         *, *::before, *::after {
             box-sizing: border-box;
-            transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 150ms ease;
+            transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         body {
             background-color: var(--bg-canvas);
             background-image: 
-                radial-gradient(circle at 50% 0%, var(--spotlight) 0%, transparent 60%),
+                var(--spotlight),
                 linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
-            background-size: 100% 100%, 36px 36px, 36px 36px;
+            background-size: 100% 100%, 32px 32px, 32px 32px;
             color: var(--text-primary);
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
@@ -118,40 +118,35 @@
             overflow-x: hidden;
         }
 
-        /* Animations */
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: translateY(8px) scale(0.99);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        /* Fluid Entrance Animations */
+        @keyframes slideUpEntrance {
+            0% { opacity: 0; transform: translateY(12px) scale(0.99); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @keyframes pulseGlow {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.35); opacity: 0.4; }
+            50% { transform: scale(1.4); opacity: 0.35; }
         }
 
-        .animate-in {
-            animation: fadeInScale 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .animate-enter {
+            animation: slideUpEntrance 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Navigation */
+        /* Navigation Header */
         .cmd-nav {
-            height: 54px;
+            min-height: 56px;
             background: var(--surface-low);
             border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
+            padding: 0.5rem 1rem;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
             backdrop-filter: blur(12px);
+        }
+
+        @media (min-width: 768px) {
+            .cmd-nav { padding: 0 1.5rem; }
         }
 
         .cmd-brand {
@@ -166,7 +161,7 @@
             text-transform: uppercase;
         }
 
-        .pulse-beacon {
+        .beacon-dot {
             position: relative;
             width: 8px;
             height: 8px;
@@ -174,26 +169,31 @@
             border-radius: 50%;
         }
 
-        .pulse-beacon::after {
+        .beacon-dot::after {
             content: "";
             position: absolute;
             inset: -4px;
             border-radius: 50%;
             background: #10b981;
-            animation: pulseGlow 2s infinite ease-in-out;
+            animation: pulseGlow 2.2s infinite ease-in-out;
             z-index: -1;
         }
 
-        /* Cards & Panels */
+        /* Panels & Cards */
         .panel {
             background: var(--surface);
             border: 1px solid var(--border-subtle);
             border-radius: 10px;
             box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .panel:hover {
+            border-color: var(--border-strong);
         }
 
         .panel-header {
-            padding: 14px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-subtle);
             font-size: 11.5px;
             font-weight: 700;
@@ -207,14 +207,24 @@
         }
 
         .panel-body {
-            padding: 20px;
+            padding: 18px;
+        }
+
+        @media (min-width: 768px) {
+            .panel-body { padding: 22px; }
         }
 
         .code-block {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Table */
+        /* High-Density Responsive Table */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .sre-table {
             width: 100%;
             border-collapse: separate;
@@ -229,25 +239,29 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-muted);
-            padding: 12px 18px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-strong);
             background: var(--surface-low);
             white-space: nowrap;
         }
 
         .sre-table tbody td {
-            padding: 13px 18px;
+            padding: 13px 16px;
             border-bottom: 1px solid var(--border-subtle);
             color: var(--text-primary);
             vertical-align: middle;
-            font-size: 13.5px;
+            font-size: 13px;
+        }
+
+        .sre-table tbody tr {
+            cursor: pointer;
         }
 
         .sre-table tbody tr:hover {
             background-color: var(--surface-hover);
         }
 
-        /* Status & Priority Badges */
+        /* Micro Status & Priority Badges */
         .badge-sre {
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
@@ -259,6 +273,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            white-space: nowrap;
         }
 
         .badge-sre-crit { background: var(--crit-bg); color: var(--crit); border: 1px solid var(--crit-border); }
@@ -267,7 +282,7 @@
         .badge-sre-low  { background: var(--low-bg);  color: var(--low);  border: 1px solid var(--low-border); }
         .badge-sre-res  { background: var(--res-bg);  color: var(--res);  border: 1px solid var(--res-border); }
 
-        /* Forms */
+        /* Form Controls */
         .form-label {
             font-size: 11.5px;
             font-weight: 600;
@@ -288,21 +303,22 @@
 
         .form-control:focus, .form-select:focus {
             border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
             outline: none;
         }
 
-        /* Buttons */
+        /* Interactive Buttons */
         .btn-sre-primary {
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff !important;
             font-size: 13px;
             font-weight: 600;
-            padding: 7px 16px;
+            padding: 7px 15px;
             border-radius: 7px;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 7px;
             text-decoration: none;
             cursor: pointer;
@@ -310,8 +326,12 @@
         }
 
         .btn-sre-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+        }
+
+        .btn-sre-primary:active {
+            transform: translateY(0);
         }
 
         .btn-sre-ghost {
@@ -324,6 +344,7 @@
             border-radius: 7px;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 7px;
             text-decoration: none;
             cursor: pointer;
@@ -333,7 +354,11 @@
             background: var(--surface-hover);
             color: var(--text-primary);
             border-color: var(--text-muted);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+        }
+
+        .btn-sre-ghost:active {
+            transform: translateY(0);
         }
 
         .theme-toggle-btn {
@@ -341,8 +366,8 @@
             border: 1px solid var(--border-strong);
             color: var(--text-secondary);
             border-radius: 7px;
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -352,21 +377,26 @@
         .theme-toggle-btn:hover {
             background: var(--surface-hover);
             color: var(--text-primary);
-            transform: rotate(15deg);
+            transform: rotate(18deg) scale(1.05);
         }
 
-        /* KPI Tiles */
+        /* KPI Metric Tiles */
         .kpi-tile {
             background: var(--surface);
             border: 1px solid var(--border-subtle);
             border-radius: 9px;
-            padding: 16px 20px;
+            padding: 16px 18px;
             box-shadow: var(--card-shadow);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .kpi-tile:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             border-color: var(--border-strong);
+            box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.4);
         }
 
         .kpi-title {
@@ -379,60 +409,70 @@
         }
 
         .kpi-val {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
             color: var(--text-primary);
             font-family: 'JetBrains Mono', monospace;
-            margin-top: 6px;
+            margin-top: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .kpi-val { font-size: 28px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Responsive Command Navigation -->
     <header class="cmd-nav">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ url_for('incidents.dashboard') if session.get('user_id') else '#' }}" class="cmd-brand">
-                <span class="pulse-beacon"></span>
-                <span>Incident Engine</span>
-            </a>
-            
-            {% if session.get('user_id') %}
-            <span class="text-secondary opacity-50">/</span>
-            <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2" style="font-size: 12px;">
-                <i class="bi bi-cpu"></i> Dashboard
-            </a>
-            {% endif %}
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" type="button">
-                <i id="themeIcon" class="bi bi-sun"></i>
-            </button>
-
-            {% if session.get('user_id') %}
-            <div class="d-flex align-items-center gap-2 ms-2">
-                <i class="bi bi-person-circle text-secondary"></i>
-                <span class="code-block small">{{ session.get('username') }}</span>
-                {% if session.get('role') %}
-                <span class="badge-sre badge-sre-low" style="font-size: 10px;">{{ session.get('role') }}</span>
+        <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ url_for('incidents.dashboard') if session.get('user_id') else '#' }}" class="cmd-brand">
+                    <span class="beacon-dot"></span>
+                    <span>Incident Control</span>
+                </a>
+                
+                {% if session.get('user_id') %}
+                <span class="text-secondary opacity-50 d-none d-sm-inline">/</span>
+                <a href="{{ url_for('incidents.dashboard') }}" class="btn-sre-ghost py-1 px-2 d-none d-sm-inline-flex" style="font-size: 12px;">
+                    <i class="bi bi-grid-fill"></i>
+                    <span>Dashboard</span>
+                </a>
                 {% endif %}
             </div>
-            <a href="{{ url_for('auth.logout') }}" class="btn-sre-ghost py-1 px-2 text-danger border-danger-subtle ms-1" title="Logout">
-                <i class="bi bi-box-arrow-right"></i>
-            </a>
-            {% else %}
-            <a href="{{ url_for('auth.login') }}" class="btn-sre-ghost py-1 px-3">Sign In</a>
-            <a href="{{ url_for('auth.register') }}" class="btn-sre-primary py-1 px-3">Enroll</a>
-            {% endif %}
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme" type="button">
+                    <i id="themeIcon" class="bi bi-sun"></i>
+                </button>
+
+                {% if session.get('user_id') %}
+                <div class="d-flex align-items-center gap-2 ms-1">
+                    <i class="bi bi-person-circle text-secondary"></i>
+                    <span class="code-block small d-none d-md-inline">{{ session.get('username') }}</span>
+                    {% if session.get('role') %}
+                    <span class="badge-sre badge-sre-low" style="font-size: 9.5px;">{{ session.get('role') }}</span>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="btn-sre-ghost py-1 px-2 text-danger border-danger-subtle ms-1" title="Sign Out">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn-sre-ghost py-1 px-3">Sign In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn-sre-primary py-1 px-3">Enroll</a>
+                {% endif %}
+            </div>
         </div>
     </header>
 
-    <main class="container-fluid px-lg-4 py-4 flex-grow-1 animate-in">
+    <!-- Main Container -->
+    <main class="container-fluid px-3 px-md-4 py-4 flex-grow-1 animate-enter">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mb-3">
                     {% for category, message in messages %}
-                        <div class="alert border-0 rounded d-flex align-items-center gap-2 py-2 px-3 small text-white" 
+                        <div class="alert border-0 rounded d-flex align-items-center gap-2 py-2 px-3 small text-white animate-enter" 
                              style="background: {{ '#dc2626' if category in ['danger', 'error'] else ('#059669' if category == 'success' else '#2563eb') }};" 
                              role="alert">
                             <i class="bi bi-info-circle-fill"></i>
@@ -446,22 +486,23 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Persistent Theme Controller -->
     <script>
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
 
-        function updateTheme(theme) {
+        function updateThemeIcon(theme) {
             themeIcon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
         }
 
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        updateTheme(currentTheme);
+        updateThemeIcon(currentTheme);
 
         themeToggle.addEventListener('click', () => {
             const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('sre_theme', next);
-            updateTheme(next);
+            localStorage.setItem('ops_theme', next);
+            updateThemeIcon(next);
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
