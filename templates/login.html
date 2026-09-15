@@ -1,32 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In - OpsConsole{% endblock %}
+{% block title %}Sign In - Incident Operations{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="col-12 col-sm-8 col-md-5 col-lg-4">
+<div class="row justify-content-center align-items-center" style="min-height: calc(85vh - 120px);">
+    <div class="col-12 col-sm-9 col-md-6 col-lg-5 col-xl-4">
         <div class="panel">
             <div class="panel-header justify-content-center">
-                <span>OPERATOR AUTHENTICATION</span>
+                <span>Sign In to Incident Console</span>
             </div>
-            <div class="panel-body">
+            <div class="panel-body p-4">
                 <form action="{{ url_for('auth.login') }}" method="POST">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Operator Handle</label>
-                        <input type="text" class="form-control code-block" id="username" name="username" placeholder="Enter username" required autofocus>
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required autofocus>
                     </div>
                     <div class="mb-4">
-                        <label for="password" class="form-label">Keyphrase</label>
-                        <input type="password" class="form-control code-block" id="password" name="password" placeholder="Enter password" required>
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn-sre-primary w-100 justify-content-center py-2">
-                        <i class="bi bi-shield-lock"></i>
-                        <span>Authorize Access</span>
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Authenticate</span>
                     </button>
                 </form>
                 <div class="text-center mt-3 pt-3 border-top border-secondary border-opacity-10">
-                    <span class="text-secondary small">Need authorization? </span>
-                    <a href="{{ url_for('auth.register') }}" class="small text-decoration-none fw-semibold">Enroll operator</a>
+                    <span class="text-secondary small">Need an account? </span>
+                    <a href="{{ url_for('auth.register') }}" class="small text-decoration-none fw-semibold">Create Account</a>
                 </div>
             </div>
         </div>
