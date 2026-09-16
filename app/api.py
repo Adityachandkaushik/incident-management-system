@@ -9,7 +9,7 @@ api_bp = Blueprint("api", __name__)
 
 @api_bp.route("/incidents", methods=["GET"])
 def get_incidents():
-
+  
     conn = get_db()
 
     incidents = conn.execute("""
