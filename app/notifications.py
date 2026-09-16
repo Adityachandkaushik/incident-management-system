@@ -8,7 +8,7 @@ def send_email(to_email, subject, body):
 
     smtp_username = current_app.config.get(
         "SMTP_USERNAME",
-        ""
+        ""   
     )
 
     smtp_password = current_app.config.get(
