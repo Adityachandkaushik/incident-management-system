@@ -8,7 +8,7 @@ def get_db():
     db_path = Path(current_app.config["DATABASE_PATH"])
 
     db_path.parent.mkdir(
-        parents=True,
+        parents=True,   
         exist_ok=True
     )
 
