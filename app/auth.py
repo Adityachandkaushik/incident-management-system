@@ -8,14 +8,14 @@ from .models import get_db
 
 auth_bp = Blueprint("auth", __name__)
 
-
+9
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
 
     # Already logged-in users do not need to register again
     if "user_id" in session:
         return redirect(url_for("incidents.dashboard"))
-
+    
     if request.method == "POST":
 
         username = request.form.get("username", "").strip()
@@ -26,7 +26,7 @@ def register():
             flash("Username and password are required.", "danger")
             return redirect(url_for("auth.register"))
 
-        # Username validation
+        # Username validation for authentication purposes
         if len(username) < 3:
             flash("Username must be at least 3 characters.", "danger")
             return redirect(url_for("auth.register"))
