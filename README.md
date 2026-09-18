@@ -6,7 +6,7 @@ Open-source incident management system for logging, tracking, assigning, and res
 A lightweight Incident Management System designed to help teams log, track, assign, and resolve infrastructure and application incidents through a centralized portal.
 
 The project is being developed as a hands-on DevOps project, gradually moving from a local Flask application to a containerized, CI/CD-driven deployment on AWS.
-
+    
 ---   
 
 ## 🎯 Project Objective
