@@ -31,7 +31,7 @@ def register():
             flash("Username must be at least 3 characters.", "danger")
             return redirect(url_for("auth.register"))
 
-        # Password validation
+        # Password validation for authentication purposes
         if len(password) < 8:
             flash("Password must be at least 8 characters.", "danger")
             return redirect(url_for("auth.register"))
