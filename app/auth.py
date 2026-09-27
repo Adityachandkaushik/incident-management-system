@@ -7,7 +7,7 @@ from .models import get_db
 
 
 auth_bp = Blueprint("auth", __name__)
-
+  
 9
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
